@@ -1,4 +1,4 @@
-package test;
+package ch.NIOSnake;
 
 import java.util.Random;
 

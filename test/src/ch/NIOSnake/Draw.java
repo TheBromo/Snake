@@ -1,4 +1,4 @@
-package test;
+package ch.NIOSnake;
 
 import java.io.IOException;
 import java.net.InetAddress;
