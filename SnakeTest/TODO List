@@ -1,0 +1,48 @@
+TODO LIST
+
+For Tomorrow
+    -add other tails
+    -add network
+    -add a initialializer
+    -add universal dot collision
+
+1. Draw Class
+    -add player overview
+    -decide on what grid size to use(20*20)✓
+    -decide what snake head size to use✓
+    -add 2d graphics component✓
+    -add communication with tail,server,interval/timer
+
+2. Snake head Class
+    -create class✓
+    -add movement✓, points, body count(moved to tail Class), coordinates,... variables
+    -collision detection( done with border, and snake itself)
+    -dot pick up detection✓
+
+3. KeyHandler Class
+    -add setter for movement variables in the head class✓
+
+4. Snake tale Class
+    -create class✓
+    -add movement,length, coordinates,active,... variables✓
+    -add dot pickup detection✓
+    -add universal dot pickup detection
+    -add collision✓
+
+5. Lobby Class
+    -create class
+    -decide how the lobby should work
+
+6. Dot Class
+    -add detector that the doesnt spawn on snake✓
+
+
+8. Online Module Class
+    -communicates with draw class which gives coordinates of heads to tail class
+    -position setter
+    -send length,position of each head
+    -lobby
+    -activeComponent
+    -no server
+    -allClients
+    -add system that decides where the next dot spawns
