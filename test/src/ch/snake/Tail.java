@@ -132,4 +132,12 @@ class Tail {
     void setAlive(boolean alive) {
         this.alive = alive;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getScore() {
+        return score;
+    }
 }

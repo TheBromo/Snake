@@ -3,6 +3,7 @@ package ch.snake;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.InetAddress;
 import javax.swing.*;
 
 class Draw extends JLabel implements KeyListener {
@@ -124,20 +125,22 @@ class Draw extends JLabel implements KeyListener {
         g.fillRect(dot.getX(), dot.getY(), dot.getSizeX(), dot.getSizeY());
 
         if (nameVisible) {
-            int shift = 15;
-            for (int x = 0; x < Lobby.players.length; x++) {
-                g.setColor(colors[x]);
-                g.fillRect(x * (bounds.width / Lobby.players.length) + shift, 10, 20, 20);
-                g.drawString(Lobby.players[x], x * (bounds.width / Lobby.players.length) + 25 + shift, 25);
+            int shift = 15 , counter=0;
+            //Displays all the names of the users in their according color
+            for (InetAddress key: Lobby.users.keySet()) {
+                g.setColor(Lobby.users.get(key).getColor());
+                g.fillRect(counter * (bounds.width / Lobby.users.size()) + shift, 10, 20, 20);
+                g.drawString(Lobby.users.get(key).getName(), counter * (bounds.width / Lobby.users.size()) + 25 + shift, 25);
                 g.setColor(Color.black);
-                int newX = x * (bounds.width / Lobby.players.length) + shift;
-                int length = String.valueOf(Lobby.scores[x]).length();
+                int newX = counter * (bounds.width / Lobby.users.size()) + shift;
+                int length = String.valueOf(Lobby.users.get(key).getScore()).length();
                 if (length == 1) {
                     newX += 7;
                 } else if (length == 2) {
                     newX += 3;
                 }
-                g.drawString("" + Lobby.scores[x], newX, 25);
+                g.drawString("" + Lobby.users.get(key).getScore(), newX, 25);
+                counter++;
             }
         }
         repaint();
@@ -184,9 +187,18 @@ class Draw extends JLabel implements KeyListener {
 
     private void generateHSB() {
         //generates player colors
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < Lobby.users.size(); i++) {
             colors[i] = Color.getHSBColor((float) (0.1 * i), (float) (0.5), (float) (1.0));
+
         }
         p.setColor(colors[0]);
+        setColors();
+    }
+    private void setColors(){
+        int counter=0;
+        for (InetAddress key:Lobby.users.keySet()){
+            Lobby.users.get(key).setColor(colors[counter]);
+            counter++;
+        }
     }
 }
