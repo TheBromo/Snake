@@ -45,6 +45,9 @@ class Lobby {
             keys = users.keySet().toArray(new InetAddress[users.size()]);
             users.get(keys[0]).setPos(size / 4, size / 2, keys[0]);
             users.get(keys[1]).setPos((size / 4) * 3, size / 2, keys[1]);
+        }else {
+            int steps=size/((int)Math.sqrt(playerCount));
+            //TODO add steps
         }
 
 

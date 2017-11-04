@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.InetAddress;
+import java.util.HashMap;
 import javax.swing.*;
 
 class Draw extends JLabel implements KeyListener {
@@ -17,8 +18,11 @@ class Draw extends JLabel implements KeyListener {
     static int snakeSize = 10;
     private int interval = (int) (100 / (20 / snakeSize));
 
+
+
     //Tail needs to be turned into an array for multiplayer
     //private Tail[] player = new Tail[10];
+    public  HashMap<InetAddress, Coordinates> heads = new HashMap<>();
     private Tail p = new Tail("ThrBromo");
 
     private long last = 0;
@@ -44,10 +48,6 @@ class Draw extends JLabel implements KeyListener {
         int[] xArray;
         int[] yArray;
 
-        /*
-            SnakeHead data must be received here
-         */
-
 
 
         //every 100ms it readjusts the tail and checks if the dot gets eaten
@@ -71,11 +71,41 @@ class Draw extends JLabel implements KeyListener {
                     SnakeHead.xHead -= snakeSize;
                     SnakeHead.lastChar = 'W';
                 }
+            }
+        }
+        /*
+            SnakeHead data must be received here
+            Network stuff here
+
+         */
+
+
+        if (now - last >= interval) {
+            if (p.isAlive()) {
                 p.refresh(SnakeHead.yHead, SnakeHead.xHead);
                 p.dotCheck();
             } else {
                 p.reset();
             }
+
+
+            /*
+            for (int i = 0; i < 10; i++) {
+                int[] secondXArray = player[i].getXCor();
+                int[] secondYArray = player[i].getYCor();
+                //Checks for Collision
+                for (int x = 1; x < player[0].getLength(); x++) {
+                    if (xArray[0] == secondXArray[x]) {
+                        if (yArray[0] == secondYArray[x]) {
+                            lost = true;
+                            SnakeHead.yHead = 400;
+                            SnakeHead.xHead = 400;
+                        }
+                    }
+                }
+            }
+*/
+
             //copies coordinates of main snake (work in progress, needs to work for multiple snakes)
             xArray = p.getXCor();
             yArray = p.getYCor();
@@ -98,22 +128,7 @@ class Draw extends JLabel implements KeyListener {
                     }
                 }
             }
-/*
-            for (int i = 0; i < 10; i++) {
-                int[] secondXArray = player[i].getXCor();
-                int[] secondYArray = player[i].getYCor();
-                //Checks for Collision
-                for (int x = 1; x < player[0].getLength(); x++) {
-                    if (xArray[0] == secondXArray[x]) {
-                        if (yArray[0] == secondYArray[x]) {
-                            lost = true;
-                            SnakeHead.yHead = 400;
-                            SnakeHead.xHead = 400;
-                        }
-                    }
-                }
-            }
-*/
+
 
             last = now;
         }
