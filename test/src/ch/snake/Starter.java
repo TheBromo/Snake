@@ -8,12 +8,12 @@ import java.net.UnknownHostException;
  * @version v0.4
  */
 public class Starter {
-    public Starter() {
+    public Starter(int size) {
         String[] names = {"Bromo", "Spasst"};
         try {
             InetAddress[] addresses = { InetAddress.getLocalHost(), InetAddress.getByName("localhost")};
-            new Lobby(names, addresses);
-            new Gui(800, 800);
+            new Lobby(names, addresses,size);
+            new Gui(size , size);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -21,6 +21,6 @@ public class Starter {
     }
 
     public static void main(String[] args) {
-        new Starter();
+        new Starter(800);
     }
 }

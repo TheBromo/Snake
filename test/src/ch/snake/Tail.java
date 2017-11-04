@@ -1,6 +1,8 @@
 package ch.snake;
 
 import java.awt.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 class Tail {
 
@@ -98,6 +100,17 @@ class Tail {
 
     int[] getYCor() {
         return yArray;
+    }
+
+    void setPos(int x, int y, InetAddress address){
+        try {
+            if (address.equals(InetAddress.getLocalHost())){
+                SnakeHead.yHead=y;
+                SnakeHead.xHead=x;
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
     Color getColor() {

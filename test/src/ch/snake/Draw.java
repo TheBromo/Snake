@@ -44,9 +44,17 @@ class Draw extends JLabel implements KeyListener {
         int[] xArray;
         int[] yArray;
 
+        /*
+            SnakeHead data must be received here
+         */
+
+
+
         //every 100ms it readjusts the tail and checks if the dot gets eaten
         if (now - last >= interval) {
-
+            /*
+                Snake head must be set here
+             */
 
             if (p.isAlive()) {
                 //The Movement in Steps of 20
