@@ -17,7 +17,6 @@ class Dot {
      * Generates a new Position for the Dot that is not on the Snake head
      */
     void changeToNewPosition() {
-        //TODO Check all and the whole Snake
         //Generates New position
         while (onTopOfSnake()|| mX < 0 || mX > 760 || mY < 0 || mY > 760) {
             mX = (r.nextInt(41) * 20);

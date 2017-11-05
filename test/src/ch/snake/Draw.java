@@ -27,7 +27,6 @@ class Draw extends JLabel implements KeyListener {
     protected void paintComponent(Graphics g) {
 
 
-        //TODO Add Network
 
         super.paintComponent(g);
         // is used for the size adjustment to the Screen
@@ -102,7 +101,7 @@ class Draw extends JLabel implements KeyListener {
                             }
                         }
                     }
-                    //TODO check if Snakes collide with each other
+
                 } else {
                     Lobby.users.get(key).reset();
                 }

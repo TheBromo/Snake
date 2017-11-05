@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 class Lobby {
-    //TODO seed Generator needs to be used
+
     public static long seed;
     public static HashMap<InetAddress, Tail> users = new HashMap<InetAddress, Tail>();
 
