@@ -1,5 +1,6 @@
 package ch.snake;
 
+import java.net.InetAddress;
 import java.util.Random;
 
 class Dot {
@@ -18,10 +19,25 @@ class Dot {
     void changeToNewPosition() {
         //TODO Check all and the whole Snake
         //Generates New position
-        while (mX == SnakeHead.xHead && mY == SnakeHead.yHead || mX < 0 || mX > 760 || mY < 0 || mY > 760) {
+        while (onTopOfSnake()|| mX < 0 || mX > 760 || mY < 0 || mY > 760) {
             mX = (r.nextInt(41) * 20);
             mY = (r.nextInt(41) * 20);
         }
+    }
+    boolean onTopOfSnake(){
+        for (InetAddress key:Lobby.users.keySet()){
+            int[] xArray = Lobby.users.get(key).getXCor();
+            int[] yArray = Lobby.users.get(key).getYCor();
+            for (int x = 1; x < Lobby.users.get(key).getLength(); x++) {
+                if (mX == xArray[x]) {
+                    if (mY == yArray[x]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     int getSizeX() {

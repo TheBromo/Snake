@@ -13,7 +13,7 @@ class Tail {
     private Dot mDot = new Dot();
     private Color mColor;
 
-    public Tail(String name){
+    Tail(String name){
         this.name=name;
     }
 
@@ -134,11 +134,11 @@ class Tail {
         this.alive = alive;
     }
 
-    public String getName() {
+     String getName() {
         return name;
     }
 
-    public int getScore() {
+     int getScore() {
         return score;
     }
 }
