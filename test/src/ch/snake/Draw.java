@@ -15,15 +15,9 @@ class Draw extends JLabel implements KeyListener {
     private static boolean nameVisible;
     private static Color[] colors = new Color[10];
     private Dot dot = new Dot();
-
     static int snakeSize = 10;
     private int interval = (int) (100 / (20 / snakeSize));
-
-
-    //Tail needs to be turned into an array for multiplayer
-    //private Tail[] player = new Tail[10];
     public static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
-
     private long last = 0;
 
     public Draw() {
@@ -97,11 +91,14 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.users.get(key).setAlive(false);
                     }
 
-                    //checks if the snake collides with itself
-                    for (int x = 1; x < Lobby.users.get(key).getLength(); x++) {
-                        if (xArray[0] == xArray[x]) {
-                            if (yArray[0] == yArray[x]) {
-                                Lobby.users.get(key).setAlive(false);
+                    for (InetAddress secondSnakeKey : Lobby.users.keySet()) {
+                        int[] secondXArray = Lobby.users.get(secondSnakeKey).getXCor();
+                        int[] secondYArray = Lobby.users.get(secondSnakeKey).getYCor();
+                        for (int x = 1; x < Lobby.users.get(secondSnakeKey).getLength(); x++) {
+                            if (xArray[0] == secondXArray[x]) {
+                                if (yArray[0] == secondYArray[x]) {
+                                    Lobby.users.get(key).setAlive(false);
+                                }
                             }
                         }
                     }
@@ -109,31 +106,11 @@ class Draw extends JLabel implements KeyListener {
                 } else {
                     Lobby.users.get(key).reset();
                 }
-
-
             }
-
-
-
-            /*
-            for (int i = 0; i < 10; i++) {
-                int[] secondXArray = player[i].getXCor();
-                int[] secondYArray = player[i].getYCor();
-                //Checks for Collision
-                for (int newX = 1; newX < player[0].getLength(); newX++) {
-                    if (xArray[0] == secondXArray[newX]) {
-                        if (yArray[0] == secondYArray[newX]) {
-                            lost = true;
-                            SnakeHead.yHead = 400;
-                            SnakeHead.xHead = 400;
-                        }
-                    }
-                }
-            }
-*/
 
             last = now;
         }
+
         for (InetAddress key : Lobby.users.keySet()) {
             xArray = Lobby.users.get(key).getXCor();
             yArray = Lobby.users.get(key).getYCor();
