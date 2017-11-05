@@ -18,4 +18,9 @@ public class Coordinates {
     public void setY(int y) {
         this.y = y;
     }
+
+    public void setPos(int x,int y){
+        this.y=y;
+        this.x=x;
+    }
 }

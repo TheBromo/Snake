@@ -22,7 +22,7 @@ class Draw extends JLabel implements KeyListener {
 
     //Tail needs to be turned into an array for multiplayer
     //private Tail[] player = new Tail[10];
-    public  HashMap<InetAddress, Coordinates> heads = new HashMap<>();
+    public static  HashMap<InetAddress, Coordinates> heads = new HashMap<>();
     private Tail p = new Tail("ThrBromo");
 
     private long last = 0;
@@ -35,6 +35,7 @@ class Draw extends JLabel implements KeyListener {
 
 
         //TODO Add Network
+
         super.paintComponent(g);
         // is used for the size adjustment to the Screen
         Rectangle bounds = getBounds();
@@ -55,9 +56,10 @@ class Draw extends JLabel implements KeyListener {
             /*
                 Snake head must be set here
              */
-
+            //TODO Replace p with users
             if (p.isAlive()) {
                 //The Movement in Steps of 20
+                //TODO Replace Head with Heads
                 if (SnakeHead.nextDir == 'N') {
                     SnakeHead.yHead -= snakeSize;
                     SnakeHead.lastChar = 'N';
@@ -74,13 +76,14 @@ class Draw extends JLabel implements KeyListener {
             }
         }
         /*
-            SnakeHead data must be received here
-            Network stuff here
+            TODO SnakeHead data must be received here
+            TODO Network stuff here
 
          */
 
 
         if (now - last >= interval) {
+            //TODO Replace p with users
             if (p.isAlive()) {
                 p.refresh(SnakeHead.yHead, SnakeHead.xHead);
                 p.dotCheck();
@@ -136,7 +139,7 @@ class Draw extends JLabel implements KeyListener {
         yArray = p.getYCor();
 
 
-        //draws snake
+        //draws snake TODO add all users
         for (int x = 0; x <= p.getLength() - 1; x++) {
             //needs to be adjusted for multiplayer
             g.setColor(p.getColor());

@@ -3,7 +3,7 @@ package ch.snake;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Iterator;
 
 class Lobby {
     //TODO seed Generator needs to be used
@@ -15,6 +15,7 @@ class Lobby {
         for (int i = 0; i < names.length; i++) {
             users.put(ipAdresses[i], new Tail(names[i]));
         }
+        positionSetter(size);
     }
 
     private long generateSeed(String[] names) {
@@ -33,21 +34,28 @@ class Lobby {
 
     private void positionSetter(int size) {
         int playerCount = users.size();
-        if (playerCount==3){
-            playerCount=4;
-        }else if (playerCount>3&&playerCount<10){
-            playerCount=9;
-        }else if (playerCount>9){
-            playerCount=16;
+        if (playerCount == 3) {
+            playerCount = 4;
+        } else if (playerCount > 3 && playerCount < 10) {
+            playerCount = 9;
+        } else if (playerCount > 9) {
+            playerCount = 16;
         }
         if (playerCount == 2) {
             InetAddress[] keys;
             keys = users.keySet().toArray(new InetAddress[users.size()]);
-            users.get(keys[0]).setPos(size / 4, size / 2, keys[0]);
-            users.get(keys[1]).setPos((size / 4) * 3, size / 2, keys[1]);
-        }else {
-            int steps=size/((int)Math.sqrt(playerCount));
-            //TODO add steps
+            Draw.heads.get(keys[0]).setPos(size / 4, size / 2);
+            Draw.heads.get(keys[1]).setPos((size / 4) * 3, size / 2);
+        } else {
+            Iterator<InetAddress> iterator = users.keySet().iterator();
+            int steps = size / ((int) Math.sqrt(playerCount));
+            for (int x = 0; x < size; x = x + steps) {
+                for (int y = 0; y < size; y = y + steps) {
+                    if (iterator.hasNext()) {
+                        Draw.heads.get(iterator.next()).setPos(x + (steps / 2), x + (steps / 2));
+                    }
+                }
+            }
         }
 
 
