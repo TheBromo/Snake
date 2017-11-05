@@ -1,26 +1,26 @@
 package ch.snake;
 
 public class Coordinates {
-    int x,y;
+    int newX, newY;
 
-    public int getX() {
-        return x;
+    public int getNewX() {
+        return newX;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setNewX(int newX) {
+        this.newX = newX;
     }
 
-    public int getY() {
-        return y;
+    public int getNewY() {
+        return newY;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setNewY(int newY) {
+        this.newY = newY;
     }
 
     public void setPos(int x,int y){
-        this.y=y;
-        this.x=x;
+        this.newY =y;
+        this.newX =x;
     }
 }
