@@ -8,6 +8,7 @@ import java.util.Iterator;
 class Lobby {
 
     public static long seed;
+    //TODO Change variable to private static
     public static HashMap<InetAddress, Tail> users = new HashMap<InetAddress, Tail>();
 
     public Lobby(String[] names, InetAddress[] ipAdresses, int size) {
