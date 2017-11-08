@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * @author Manuel Strenge
+ * @author Manuel Strenge https://github.com/TheBromo
  * @version v0.4
  */
 public class Starter {
@@ -17,7 +17,6 @@ public class Starter {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void main(String[] args) {

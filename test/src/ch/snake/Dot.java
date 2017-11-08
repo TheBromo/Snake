@@ -9,7 +9,7 @@ class Dot {
     Random r = new Random();
 
     public Dot() {
-        r.setSeed(Lobby.seed);
+        r.setSeed(Lobby.getSeed());
 
     }
 
@@ -24,10 +24,10 @@ class Dot {
         }
     }
     boolean onTopOfSnake(){
-        for (InetAddress key:Lobby.users.keySet()){
-            int[] xArray = Lobby.users.get(key).getXCor();
-            int[] yArray = Lobby.users.get(key).getYCor();
-            for (int x = 1; x < Lobby.users.get(key).getLength(); x++) {
+        for (InetAddress key:Lobby.getUsers().keySet()){
+            int[] xArray = Lobby.getUsers().get(key).getXCor();
+            int[] yArray = Lobby.getUsers().get(key).getYCor();
+            for (int x = 1; x < Lobby.getUsers().get(key).getLength(); x++) {
                 if (mX == xArray[x]) {
                     if (mY == yArray[x]) {
                         return true;

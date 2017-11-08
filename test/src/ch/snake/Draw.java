@@ -9,11 +9,9 @@ import java.util.HashMap;
 import javax.swing.*;
 
 class Draw extends JLabel implements KeyListener {
-    //temporary will be moved to lobby handler
-
 
     private static boolean nameVisible;
-    private static Color[] colors = new Color[10];
+    private static Color[] colors = new Color[Lobby.getUsers().size()];
     private Dot dot = new Dot();
     static int snakeSize = 10;
     private int interval = (int) (100 / (20 / snakeSize));
@@ -25,8 +23,6 @@ class Draw extends JLabel implements KeyListener {
     }
 
     protected void paintComponent(Graphics g) {
-
-
 
         super.paintComponent(g);
         // is used for the size adjustment to the Screen
@@ -48,7 +44,7 @@ class Draw extends JLabel implements KeyListener {
                 Snake head must be set here
              */
             try {
-                if (Lobby.users.get(InetAddress.getLocalHost()).isAlive()) {
+                if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
                     //The Movement in Steps of 20
                     if (SnakeHead.nextDir == 'N') {
                         int y = heads.get(InetAddress.getLocalHost()).getNewY();
@@ -80,46 +76,43 @@ class Draw extends JLabel implements KeyListener {
 
 
         if (now - last >= interval) {
-            for (InetAddress key : Lobby.users.keySet()) {
-                xArray = Lobby.users.get(key).getXCor();
-                yArray = Lobby.users.get(key).getYCor();
-                if (Lobby.users.get(key).isAlive()) {
-                    Lobby.users.get(key).refresh(heads.get(key).getNewY(), heads.get(key).getNewX());
-                    Lobby.users.get(key).dotCheck();
+            for (InetAddress key : Lobby.getUsers().keySet()) {
+                xArray = Lobby.getUsers().get(key).getXCor();
+                yArray = Lobby.getUsers().get(key).getYCor();
+                if (Lobby.getUsers().get(key).isAlive()) {
+                    Lobby.getUsers().get(key).refresh(heads.get(key).getNewY(), heads.get(key).getNewX());
+                    Lobby.getUsers().get(key).dotCheck();
                     if (heads.get(key).getNewX() < 0 || heads.get(key).getNewX() + snakeSize + 1 >= bounds.width || heads.get(key).getNewY() < 0 || heads.get(key).getNewY() + snakeSize + 1 >= bounds.height) {
-                        Lobby.users.get(key).setAlive(false);
+                        Lobby.getUsers().get(key).setAlive(false);
                     }
-
-                    for (InetAddress secondSnakeKey : Lobby.users.keySet()) {
-                        int[] secondXArray = Lobby.users.get(secondSnakeKey).getXCor();
-                        int[] secondYArray = Lobby.users.get(secondSnakeKey).getYCor();
-                        for (int x = 1; x < Lobby.users.get(secondSnakeKey).getLength(); x++) {
+                    for (InetAddress secondSnakeKey : Lobby.getUsers().keySet()) {
+                        int[] secondXArray = Lobby.getUsers().get(secondSnakeKey).getXCor();
+                        int[] secondYArray = Lobby.getUsers().get(secondSnakeKey).getYCor();
+                        for (int x = 1; x < Lobby.getUsers().get(secondSnakeKey).getLength(); x++) {
                             if (xArray[0] == secondXArray[x]) {
                                 if (yArray[0] == secondYArray[x]) {
-                                    Lobby.users.get(key).setAlive(false);
+                                    Lobby.getUsers().get(key).setAlive(false);
                                 }
                             }
                         }
                     }
 
                 } else {
-                    Lobby.users.get(key).reset();
+                    Lobby.getUsers().get(key).reset();
                 }
             }
-
             last = now;
         }
 
-        for (InetAddress key : Lobby.users.keySet()) {
-            xArray = Lobby.users.get(key).getXCor();
-            yArray = Lobby.users.get(key).getYCor();
+        for (InetAddress key : Lobby.getUsers().keySet()) {
+            xArray = Lobby.getUsers().get(key).getXCor();
+            yArray = Lobby.getUsers().get(key).getYCor();
 
-            for (int x = 0; x <= Lobby.users.get(key).getLength() - 1; x++) {
-                g.setColor(Lobby.users.get(key).getColor());
+            for (int x = 0; x <= Lobby.getUsers().get(key).getLength() - 1; x++) {
+                g.setColor(Lobby.getUsers().get(key).getColor());
                 g.fillRect(xArray[x], yArray[x], snakeSize, snakeSize);
             }
         }
-
 
         //paints dot
         g.setColor(Color.white);
@@ -128,19 +121,19 @@ class Draw extends JLabel implements KeyListener {
         if (nameVisible) {
             int shift = 15, counter = 0;
             //Displays all the names of the users in their according color
-            for (InetAddress key : Lobby.users.keySet()) {
-                g.setColor(Lobby.users.get(key).getColor());
-                g.fillRect(counter * (bounds.width / Lobby.users.size()) + shift, 10, 20, 20);
-                g.drawString(Lobby.users.get(key).getName(), counter * (bounds.width / Lobby.users.size()) + 25 + shift, 25);
+            for (InetAddress key : Lobby.getUsers().keySet()) {
+                g.setColor(Lobby.getUsers().get(key).getColor());
+                g.fillRect(counter * (bounds.width / Lobby.getUsers().size()) + shift, 10, 20, 20);
+                g.drawString(Lobby.getUsers().get(key).getName(), counter * (bounds.width / Lobby.getUsers().size()) + 25 + shift, 25);
                 g.setColor(Color.black);
-                int newX = counter * (bounds.width / Lobby.users.size()) + shift;
-                int length = String.valueOf(Lobby.users.get(key).getScore()).length();
+                int newX = counter * (bounds.width / Lobby.getUsers().size()) + shift;
+                int length = String.valueOf(Lobby.getUsers().get(key).getScore()).length();
                 if (length == 1) {
                     newX += 7;
                 } else if (length == 2) {
                     newX += 3;
                 }
-                g.drawString("" + Lobby.users.get(key).getScore(), newX, 25);
+                g.drawString("" + Lobby.getUsers().get(key).getScore(), newX, 25);
                 counter++;
             }
         }
@@ -184,7 +177,7 @@ class Draw extends JLabel implements KeyListener {
 
     private void generateHSB() {
         //generates player colors
-        for (int i = 0; i < Lobby.users.size(); i++) {
+        for (int i = 0; i < Lobby.getUsers().size(); i++) {
             colors[i] = Color.getHSBColor((float) (0.1 * i), (float) (0.5), (float) (1.0));
 
         }
@@ -193,8 +186,8 @@ class Draw extends JLabel implements KeyListener {
 
     private void setColors() {
         int counter = 0;
-        for (InetAddress key : Lobby.users.keySet()) {
-            Lobby.users.get(key).setColor(colors[counter]);
+        for (InetAddress key : Lobby.getUsers().keySet()) {
+            Lobby.getUsers().get(key).setColor(colors[counter]);
             counter++;
         }
     }
