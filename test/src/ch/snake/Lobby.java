@@ -7,9 +7,9 @@ import java.util.Iterator;
 
 class Lobby {
 
-    public static long seed;
+    private static long seed;
     //TODO Change variable to private static
-    public static HashMap<InetAddress, Tail> users = new HashMap<InetAddress, Tail>();
+    private static HashMap<InetAddress, Tail> users = new HashMap<InetAddress, Tail>();
 
     public Lobby(String[] names, InetAddress[] ipAdresses, int size) {
         seed = generateSeed(names);
@@ -31,6 +31,14 @@ class Lobby {
             hash = 31L * hash + c;
         }
         return hash;
+    }
+
+    public static long getSeed() {
+        return seed;
+    }
+
+    public static HashMap<InetAddress, Tail> getUsers() {
+        return users;
     }
 
     private void positionSetter(int size) {
