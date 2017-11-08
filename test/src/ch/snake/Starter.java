@@ -11,9 +11,9 @@ public class Starter {
     public Starter(int size) {
         String[] names = {"Bromo", "Spasst"};
         try {
-            InetAddress[] addresses = { InetAddress.getLocalHost(), InetAddress.getByName("localhost")};
-            new Lobby(names, addresses,size);
-            new Gui(size , size);
+            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("localhost")};
+            new Lobby(names, addresses, size);
+            new Gui(size, size);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

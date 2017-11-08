@@ -18,13 +18,14 @@ class Dot {
      */
     void changeToNewPosition() {
         //Generates New position
-        while (onTopOfSnake()|| mX < 0 || mX > 760 || mY < 0 || mY > 760) {
+        while (onTopOfSnake() || mX < 0 || mX > 760 || mY < 0 || mY > 760) {
             mX = (r.nextInt(41) * 20);
             mY = (r.nextInt(41) * 20);
         }
     }
-    boolean onTopOfSnake(){
-        for (InetAddress key:Lobby.getUsers().keySet()){
+
+    boolean onTopOfSnake() {
+        for (InetAddress key : Lobby.getUsers().keySet()) {
             int[] xArray = Lobby.getUsers().get(key).getXCor();
             int[] yArray = Lobby.getUsers().get(key).getYCor();
             for (int x = 1; x < Lobby.getUsers().get(key).getLength(); x++) {

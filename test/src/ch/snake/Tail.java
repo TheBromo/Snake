@@ -7,14 +7,14 @@ class Tail {
     private int[] xArray = new int[100];
     private int[] yArray = new int[100];
     private String name;
-    private int score=0;
+    private int score = 0;
     private int length = 6;
     private boolean alive;
     private Dot mDot = new Dot();
     private Color mColor;
 
-    Tail(String name){
-        this.name=name;
+    Tail(String name) {
+        this.name = name;
     }
 
 
@@ -44,7 +44,7 @@ class Tail {
         for (int y = 0; y < length; y++) {
             yArray[y] = 2000;
         }
-        length=6;
+        length = 6;
     }
 
     /**
@@ -134,11 +134,11 @@ class Tail {
         this.alive = alive;
     }
 
-     String getName() {
+    String getName() {
         return name;
     }
 
-     int getScore() {
+    int getScore() {
         return score;
     }
 }

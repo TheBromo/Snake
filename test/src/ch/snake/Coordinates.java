@@ -19,8 +19,8 @@ public class Coordinates {
         this.newY = newY;
     }
 
-    public void setPos(int x,int y){
-        this.newY =y;
-        this.newX =x;
+    public void setPos(int x, int y) {
+        this.newY = y;
+        this.newX = x;
     }
 }

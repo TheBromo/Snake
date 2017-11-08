@@ -8,15 +8,19 @@ import java.util.Iterator;
 class Lobby {
 
     private static long seed;
-    //TODO Change variable to private static
-    private static HashMap<InetAddress, Tail> users = new HashMap<InetAddress, Tail>();
+    private static HashMap<InetAddress, Tail> users = new HashMap<>();
+    private static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
 
     public Lobby(String[] names, InetAddress[] ipAdresses, int size) {
         seed = generateSeed(names);
         for (int i = 0; i < names.length; i++) {
             users.put(ipAdresses[i], new Tail(names[i]));
         }
+        for (int i = 0; i < names.length; i++) {
+            heads.put(ipAdresses[i], new Coordinates());
+        }
         positionSetter(size);
+
     }
 
     private long generateSeed(String[] names) {
@@ -41,6 +45,10 @@ class Lobby {
         return users;
     }
 
+    public static HashMap<InetAddress, Coordinates> getHeads() {
+        return heads;
+    }
+
     private void positionSetter(int size) {
         int playerCount = users.size();
         if (playerCount == 3) {
@@ -53,15 +61,15 @@ class Lobby {
         if (playerCount == 2) {
             InetAddress[] keys;
             keys = users.keySet().toArray(new InetAddress[users.size()]);
-            Draw.heads.get(keys[0]).setPos(size / 4, size / 2);
-            Draw.heads.get(keys[1]).setPos((size / 4) * 3, size / 2);
+            Lobby.getHeads().get(keys[0]).setPos(size / 4, size / 2);
+            Lobby.getHeads().get(keys[1]).setPos((size / 4) * 3, size / 2);
         } else {
             Iterator<InetAddress> iterator = users.keySet().iterator();
             int steps = size / ((int) Math.sqrt(playerCount));
             for (int x = 0; x < size; x = x + steps) {
                 for (int y = 0; y < size; y = y + steps) {
                     if (iterator.hasNext()) {
-                        Draw.heads.get(iterator.next()).setPos(x + (steps / 2), x + (steps / 2));
+                        Lobby.getHeads().get(iterator.next()).setPos(x + (steps / 2), x + (steps / 2));
                     }
                 }
             }

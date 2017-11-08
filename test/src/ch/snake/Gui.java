@@ -2,6 +2,7 @@ package ch.snake;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 class Gui extends JFrame {
 
@@ -27,7 +28,12 @@ class Gui extends JFrame {
       getContentPane().setBackground(Color.black);
 
       //adds 2d GraphicsComponent
-      Draw lbl = new Draw();
+      Draw lbl = null;
+      try {
+         lbl = new Draw();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
       lbl.setBounds(0, 0, sizeX, sizeY);
       getContentPane().add(lbl);
       addKeyListener(lbl);
