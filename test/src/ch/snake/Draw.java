@@ -27,19 +27,23 @@ class Draw extends JLabel implements KeyListener {
     private Selector selector;
     ByteBuffer readBuffer, writeBuffer;
 
-    public Draw() throws IOException {
+    public Draw() {
         generateHSB();
+        try {
+            socket = DatagramChannel.open();
+            socket.configureBlocking(false);
+            socket.bind(new InetSocketAddress(23723));
 
-        socket = DatagramChannel.open();
-        socket.configureBlocking(false);
-        socket.bind(new InetSocketAddress(23723));
+            selector = Selector.open();
+            socket.register(selector, SelectionKey.OP_READ);
 
-        selector = Selector.open();
-        socket.register(selector, SelectionKey.OP_READ);
+            readBuffer = ByteBuffer.allocate(1024);
+            writeBuffer = ByteBuffer.allocate(1024);
 
-        readBuffer = ByteBuffer.allocate(1024);
-        writeBuffer = ByteBuffer.allocate(1024);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void paintComponent(Graphics g) {
@@ -98,7 +102,8 @@ class Draw extends JLabel implements KeyListener {
                         readBuffer.position(0).limit(readBuffer.capacity());
                         SocketAddress sender = socket.receive(readBuffer);
                         System.out.println(sender);
-                        Lobby.getHeads().get(sender).setPos(readBuffer.getInt(),readBuffer.getInt());
+                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
+                        Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
                         readBuffer.flip();
                     }
                     keys.remove();
@@ -110,8 +115,8 @@ class Draw extends JLabel implements KeyListener {
             writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
             writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
             writeBuffer.flip();
-            for (InetAddress address:Lobby.getUsers().keySet()) {
-                InetSocketAddress socketAddress = new InetSocketAddress(address,23723);
+            for (InetAddress address : Lobby.getUsers().keySet()) {
+                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
                 socket.send(writeBuffer, socketAddress);
             }
         } catch (IOException e) {
