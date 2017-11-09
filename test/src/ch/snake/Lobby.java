@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 class Lobby {
-
+    private static int snakeSize=10;
     private static long seed;
     private static HashMap<InetAddress, Tail> users = new HashMap<>();
     private static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
@@ -20,6 +20,14 @@ class Lobby {
             heads.put(ipAdresses[i], new Coordinates());
         }
         positionSetter(size);
+
+        int ySteps=0;
+        for (InetAddress key:users.keySet()){
+            for (int index=1;index<users.get(key).getLength();index++) {
+                users.get(key).setupArray(index,size+50,ySteps);
+                ySteps+=snakeSize;
+            }
+        }
 
     }
 
@@ -47,6 +55,10 @@ class Lobby {
 
     public static HashMap<InetAddress, Coordinates> getHeads() {
         return heads;
+    }
+
+    public static int getSnakeSize() {
+        return snakeSize;
     }
 
     private void positionSetter(int size) {

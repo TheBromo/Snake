@@ -4,14 +4,9 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.util.Iterator;
 import javax.swing.*;
 
@@ -20,7 +15,7 @@ class Draw extends JLabel implements KeyListener {
     private static boolean nameVisible;
     private static Color[] colors = new Color[100];
     private Dot dot = new Dot();
-    static int snakeSize = 10;
+    static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
     private long last = 0;
     private DatagramChannel socket;
@@ -64,12 +59,10 @@ class Draw extends JLabel implements KeyListener {
 
         //every 100ms it readjusts the tail and checks if the dot gets eaten
         if (now - last >= interval) {
-            /*
-                Snake head must be set here
-             */
+
             try {
                 if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
-                    //The Movement in Steps of 20
+                    //The Movement in Steps of
                     if (SnakeHead.nextDir == 'N') {
                         int y = Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY();
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewY(y - snakeSize);
@@ -87,8 +80,23 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
+                    //Sends the new Coordinates
+                    writeBuffer.position(0).limit(writeBuffer.capacity());
+
+                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
+                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                    writeBuffer.flip();
+                    for (InetAddress address : Lobby.getUsers().keySet()) {
+                        if (!address.equals(InetAddress.getLocalHost())) {
+                            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                            socket.send(writeBuffer, socketAddress);
+                        }
+                    }
+
                 }
             } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -99,25 +107,17 @@ class Draw extends JLabel implements KeyListener {
                     SelectionKey key = keys.next();
 
                     if (key.isReadable()) {
+                        //reads the new coordinates
                         readBuffer.position(0).limit(readBuffer.capacity());
                         SocketAddress sender = socket.receive(readBuffer);
                         System.out.println(sender);
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
+                        System.out.println(readBuffer.getInt(0) + " " + readBuffer.getInt(1));
                         readBuffer.flip();
                     }
                     keys.remove();
                 }
-            }
-
-            writeBuffer.position(0).limit(writeBuffer.capacity());
-
-            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
-            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-            writeBuffer.flip();
-            for (InetAddress address : Lobby.getUsers().keySet()) {
-                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                socket.send(writeBuffer, socketAddress);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,11 +125,6 @@ class Draw extends JLabel implements KeyListener {
 
 
 
-        /*
-            TODO SnakeHead data must be received here
-            TODO Network stuff here
-            TODO Reform the code so that it checks if Coordinates have changed and then check collision...
-         */
 
 
         if (now - last >= interval) {
@@ -137,11 +132,15 @@ class Draw extends JLabel implements KeyListener {
                 xArray = Lobby.getUsers().get(key).getXCor();
                 yArray = Lobby.getUsers().get(key).getYCor();
                 if (Lobby.getUsers().get(key).isAlive()) {
+                    //moves the snake tail further
                     Lobby.getUsers().get(key).refresh(Lobby.getHeads().get(key).getNewY(), Lobby.getHeads().get(key).getNewX());
+                    //Checks if snake collides with the dot
                     Lobby.getUsers().get(key).dotCheck();
+                    //checks if the snake collides with the border
                     if (Lobby.getHeads().get(key).getNewX() < 0 || Lobby.getHeads().get(key).getNewX() + snakeSize + 1 >= bounds.width || Lobby.getHeads().get(key).getNewY() < 0 || Lobby.getHeads().get(key).getNewY() + snakeSize + 1 >= bounds.height) {
                         Lobby.getUsers().get(key).setAlive(false);
                     }
+                    //checks if the snake collides with other snakes
                     for (InetAddress secondSnakeKey : Lobby.getUsers().keySet()) {
                         int[] secondXArray = Lobby.getUsers().get(secondSnakeKey).getXCor();
                         int[] secondYArray = Lobby.getUsers().get(secondSnakeKey).getYCor();
@@ -155,6 +154,7 @@ class Draw extends JLabel implements KeyListener {
                     }
 
                 } else {
+                    //keeps the snake in place when it is dead
                     Lobby.getUsers().get(key).reset();
                 }
             }
@@ -162,6 +162,7 @@ class Draw extends JLabel implements KeyListener {
         }
 
         for (InetAddress key : Lobby.getUsers().keySet()) {
+            //draws all the snakes
             xArray = Lobby.getUsers().get(key).getXCor();
             yArray = Lobby.getUsers().get(key).getYCor();
 
@@ -241,6 +242,7 @@ class Draw extends JLabel implements KeyListener {
     }
 
     private void setColors() {
+
         int counter = 0;
         for (InetAddress key : Lobby.getUsers().keySet()) {
             Lobby.getUsers().get(key).setColor(colors[counter]);

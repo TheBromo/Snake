@@ -11,13 +11,14 @@ import java.util.Scanner;
  * @version v0.4
  */
 public class Starter {
-    public Starter(int size) {
-
+    public Starter(int size) throws UnknownHostException {
+        System.out.println("Local Address= "+InetAddress.getLocalHost());
         Scanner scanner = new Scanner(System.in);
         String i = scanner.nextLine();
         String[] names = {"Bromo", "Spasst"};
         try {
             InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.56.1")};
+
             new Lobby(names, addresses, size);
             new Gui(size, size);
         } catch (UnknownHostException e) {
@@ -25,7 +26,7 @@ public class Starter {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         new Starter(800);
     }
 }

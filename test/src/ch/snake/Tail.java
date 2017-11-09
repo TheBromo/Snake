@@ -9,7 +9,7 @@ class Tail {
     private String name;
     private int score = 0;
     private int length = 6;
-    private boolean alive;
+    private boolean alive=true;
     private Dot mDot = new Dot();
     private Color mColor;
 
@@ -103,6 +103,17 @@ class Tail {
 
     Color getColor() {
         return mColor;
+    }
+
+    /**
+     * It let's you set values by indexes
+     * @param index the given indexes
+     * @param x coordinate
+     * @param y coordinate
+     */
+    void setupArray(int index, int x,int y){
+        xArray[index]=x;
+        yArray[index]=y;
     }
 
     /**
