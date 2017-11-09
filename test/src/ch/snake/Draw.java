@@ -80,6 +80,8 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
+                    System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+
                     //Sends the new Coordinates
                     writeBuffer.position(0).limit(writeBuffer.capacity());
 
