@@ -135,6 +135,7 @@ class Draw extends JLabel implements KeyListener {
                     //moves the snake tail further
                     Lobby.getUsers().get(key).refresh(Lobby.getHeads().get(key).getNewY(), Lobby.getHeads().get(key).getNewX());
                     //Checks if snake collides with the dot
+                    //TODO Does not work
                     Lobby.getUsers().get(key).dotCheck();
                     //checks if the snake collides with the border
                     if (Lobby.getHeads().get(key).getNewX() < 0 || Lobby.getHeads().get(key).getNewX() + snakeSize + 1 >= bounds.width || Lobby.getHeads().get(key).getNewY() < 0 || Lobby.getHeads().get(key).getNewY() + snakeSize + 1 >= bounds.height) {
