@@ -10,7 +10,6 @@ class Tail {
     private int score = 0;
     private int length = 6;
     private boolean alive=true;
-    private Dot mDot = new Dot();
     private Color mColor;
 
     Tail(String name) {
@@ -81,7 +80,7 @@ class Tail {
     /**
      * Checks if the Snake Collides with the Dot, if it collides it becomes one bPart bigger
      */
-    void dotCheck() {
+    void dotCheck(Dot mDot) {
         //TODO does not work
         if (yArray[0] == mDot.getY() && xArray[0] == mDot.getX()) {
             //adds one tail part
