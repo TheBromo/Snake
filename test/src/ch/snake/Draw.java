@@ -80,33 +80,31 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
-                    System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                    //             System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
 
-                    //Sends the new Coordinates
-                    writeBuffer.position(0).limit(writeBuffer.capacity());
-                    int bool=0;
-                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
-                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-                    if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()){
-                        bool=1;
-                    }
-                    writeBuffer.putInt(bool);
-                    writeBuffer.flip();
-                    for (InetAddress address : Lobby.getUsers().keySet()) {
-                        if (!address.equals(InetAddress.getLocalHost())) {
-                            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                            socket.send(writeBuffer, socketAddress);
-                        }
-                    }
 
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         try {
+            //Sends the new Coordinates
+            writeBuffer.position(0).limit(writeBuffer.capacity());
+            int bool = 0;
+            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
+            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+            if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
+                bool = 1;
+            }
+            writeBuffer.putInt(bool);
+            writeBuffer.flip();
+            for (InetAddress address : Lobby.getUsers().keySet()) {
+                if (!address.equals(InetAddress.getLocalHost())) {
+                    InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                    socket.send(writeBuffer, socketAddress);
+                }
+            }
             if (selector.selectNow() > 0) {
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
                 while (keys.hasNext()) {
@@ -120,24 +118,21 @@ class Draw extends JLabel implements KeyListener {
                         System.out.println(sender);
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
-                        if (readBuffer.getInt()==1){
+                        if (readBuffer.getInt() == 1) {
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(true);
                             System.out.println("set alive");
-                        }else{
+                        } else {
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(false);
                         }
                         System.out.println(readBuffer.getInt(0) + " " + readBuffer.getInt(4));
-                        System.out.println("Alive?: "+Lobby.getUsers().get(socketAddress.getAddress()).isAlive());
-                     }
+                        System.out.println("Alive?: " + Lobby.getUsers().get(socketAddress.getAddress()).isAlive());
+                    }
                     keys.remove();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
 
 
         if (now - last >= interval) {
