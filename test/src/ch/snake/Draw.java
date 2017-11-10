@@ -17,7 +17,7 @@ class Draw extends JLabel implements KeyListener {
     private Dot dot = new Dot();
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
-    private long last = 0;
+    private long last = 0, counter = 0;
     private DatagramChannel socket;
     private Selector selector;
     ByteBuffer readBuffer, writeBuffer;
@@ -80,7 +80,7 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
-                    //             System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                    //System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
                     try {
 
                         //Sends the new Coordinates
@@ -88,6 +88,8 @@ class Draw extends JLabel implements KeyListener {
                         int bool = 0;
                         writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
                         writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                        writeBuffer.putLong(counter);
+
                         if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
                             bool = 1;
                         }
@@ -100,6 +102,14 @@ class Draw extends JLabel implements KeyListener {
                             }
                         }
 
+                        //TODO finish this
+                        long received = -1;
+                        while (counter != received) {
+
+                        }
+
+                        //must be at the end
+                        counter++;
                     } catch (UnknownHostException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
