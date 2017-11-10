@@ -117,6 +117,7 @@ class Draw extends JLabel implements KeyListener {
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
                         System.out.println(readBuffer.getInt(0) + " " + readBuffer.getInt(4));
+                        System.out.println("Alive?: "+Lobby.getUsers().get(socketAddress.getAddress()).isAlive());
                      }
                     keys.remove();
                 }
