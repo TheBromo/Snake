@@ -81,30 +81,32 @@ class Draw extends JLabel implements KeyListener {
                         SnakeHead.lastChar = 'W';
                     }
                     //             System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-
+                    //Sends the new Coordinates
+                    writeBuffer.position(0).limit(writeBuffer.capacity());
+                    int bool = 0;
+                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
+                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                    if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
+                        bool = 1;
+                    }
+                    writeBuffer.putInt(bool);
+                    writeBuffer.flip();
+                    for (InetAddress address : Lobby.getUsers().keySet()) {
+                        if (!address.equals(InetAddress.getLocalHost())) {
+                            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                            socket.send(writeBuffer, socketAddress);
+                        }
+                    }
 
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         try {
-            //Sends the new Coordinates
-            writeBuffer.position(0).limit(writeBuffer.capacity());
-            int bool = 0;
-            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
-            writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-            if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
-                bool = 1;
-            }
-            writeBuffer.putInt(bool);
-            writeBuffer.flip();
-            for (InetAddress address : Lobby.getUsers().keySet()) {
-                if (!address.equals(InetAddress.getLocalHost())) {
-                    InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                    socket.send(writeBuffer, socketAddress);
-                }
-            }
+
             if (selector.selectNow() > 0) {
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
                 while (keys.hasNext()) {
