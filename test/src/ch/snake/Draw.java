@@ -17,6 +17,7 @@ class Draw extends JLabel implements KeyListener {
     private Dot dot = new Dot();
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
+    private int socketInterval = (int) (interval / 3.0);
     private long last = 0;
     private DatagramChannel socket;
     private Selector selector;
@@ -81,30 +82,42 @@ class Draw extends JLabel implements KeyListener {
                         SnakeHead.lastChar = 'W';
                     }
                     //             System.out.println("The real coordinates:\ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX()+" \ny:"+Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-                    //Sends the new Coordinates
-                    writeBuffer.position(0).limit(writeBuffer.capacity());
-                    int bool = 0;
-                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
-                    writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-                    if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
-                        bool = 1;
-                    }
-                    writeBuffer.putInt(bool);
-                    writeBuffer.flip();
-                    for (InetAddress address : Lobby.getUsers().keySet()) {
-                        if (!address.equals(InetAddress.getLocalHost())) {
-                            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                            socket.send(writeBuffer, socketAddress);
-                        }
-                    }
+
 
                 }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (now - last >= socketInterval) {
+            try {
+
+                //Sends the new Coordinates
+                writeBuffer.position(0).limit(writeBuffer.capacity());
+                int bool = 0;
+                writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
+                writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
+                if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
+                    bool = 1;
+                }
+                writeBuffer.putInt(bool);
+                writeBuffer.flip();
+                for (InetAddress address : Lobby.getUsers().keySet()) {
+                    if (!address.equals(InetAddress.getLocalHost())) {
+                        InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                        socket.send(writeBuffer, socketAddress);
+                    }
+                }
+
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+
         try {
 
             if (selector.selectNow() > 0) {
