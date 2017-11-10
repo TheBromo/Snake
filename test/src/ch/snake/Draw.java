@@ -84,13 +84,13 @@ class Draw extends JLabel implements KeyListener {
 
                     //Sends the new Coordinates
                     writeBuffer.position(0).limit(writeBuffer.capacity());
-                    byte bool=0;
+                    int bool=0;
                     writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
                     writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
                     if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()){
                         bool=1;
                     }
-                    writeBuffer.put(bool);
+                    writeBuffer.putInt(bool);
                     writeBuffer.flip();
                     for (InetAddress address : Lobby.getUsers().keySet()) {
                         if (!address.equals(InetAddress.getLocalHost())) {
@@ -120,7 +120,7 @@ class Draw extends JLabel implements KeyListener {
                         System.out.println(sender);
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
-                        if (readBuffer.get()==1){
+                        if (readBuffer.getInt()==1){
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(true);
                         }else{
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(false);
