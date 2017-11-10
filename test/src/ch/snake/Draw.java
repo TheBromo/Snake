@@ -122,6 +122,7 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
                         if (readBuffer.getInt()==1){
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(true);
+                            System.out.println("set alive");
                         }else{
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(false);
                         }
@@ -153,6 +154,7 @@ class Draw extends JLabel implements KeyListener {
                     if (Lobby.getHeads().get(key).getNewX() < 0 || Lobby.getHeads().get(key).getNewX() + snakeSize + 1 >= bounds.width || Lobby.getHeads().get(key).getNewY() < 0 || Lobby.getHeads().get(key).getNewY() + snakeSize + 1 >= bounds.height) {
                         Lobby.getUsers().get(key).setAlive(false);
                     }
+                    /*
                     //checks if the snake collides with other snakes
                     for (InetAddress secondSnakeKey : Lobby.getUsers().keySet()) {
                         int[] secondXArray = Lobby.getUsers().get(secondSnakeKey).getXCor();
@@ -164,7 +166,7 @@ class Draw extends JLabel implements KeyListener {
                                 }
                             }
                         }
-                    }
+                    }*/
 
                 } else {
                     //keeps the snake in place when it is dead
