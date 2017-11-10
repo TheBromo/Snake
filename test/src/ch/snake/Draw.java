@@ -112,12 +112,12 @@ class Draw extends JLabel implements KeyListener {
                         //reads the new coordinates
                         readBuffer.position(0).limit(readBuffer.capacity());
                         SocketAddress sender = socket.receive(readBuffer);
+                        readBuffer.flip();
                         System.out.println(sender);
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
-                        System.out.println(readBuffer.getInt(0) + " " + readBuffer.getInt(1));
-                        readBuffer.flip();
-                    }
+                        System.out.println(readBuffer.getInt(0) + " " + readBuffer.getInt(4));
+                     }
                     keys.remove();
                 }
             }
