@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -121,6 +122,7 @@ public class Network {
                         SocketAddress sender = socket.receive(readBuffer);
                         readBuffer.flip();
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
+                        System.out.println(readBuffer.getInt(0)+"");
                         if (readBuffer.getInt() == checkNumber) {
                             addresses.remove(socketAddress.getAddress());
                         }
@@ -138,4 +140,44 @@ public class Network {
         checkNumber++;
     }
 
+
+    public void waitForConnection() throws IOException {
+        writeBuffer.position(0).limit(writeBuffer.capacity());
+        writeBuffer.putInt(555);
+        writeBuffer.flip();
+        ArrayList<InetAddress> addresses = new ArrayList<>();
+        for (InetAddress i : Lobby.getUsers().keySet()) {
+            if (!i.equals(InetAddress.getLocalHost())) {
+                addresses.add(i);
+            }
+        }
+        while (addresses.size() > 0) {
+            if (selector.selectNow() > 0) {
+                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+                while (keys.hasNext()) {
+                    SelectionKey key = keys.next();
+
+                    if (key.isReadable()) {
+                        //reads the new coordinates
+                        readBuffer.position(0).limit(readBuffer.capacity());
+                        SocketAddress sender = socket.receive(readBuffer);
+                        readBuffer.flip();
+                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
+                        System.out.println(readBuffer.getInt(0)+"");
+                        if (readBuffer.getInt() == 555) {
+                            addresses.remove(socketAddress.getAddress());
+                        }
+                    }
+
+                    keys.remove();
+                }
+            }
+
+            for (InetAddress i : addresses) {
+                InetSocketAddress socketAddress = new InetSocketAddress(i, 23723);
+                socket.send(writeBuffer, socketAddress);
+            }
+        }
+        System.out.println("Success");
+    }
 }

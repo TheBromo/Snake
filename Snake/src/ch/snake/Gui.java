@@ -28,7 +28,7 @@ class Gui extends JFrame {
         getContentPane().setBackground(Color.black);
 
         //adds 2d GraphicsComponent
-        Draw lbl = null;
+        Draw lbl;
 
         lbl = new Draw();
 
