@@ -13,7 +13,7 @@ public class Starter {
 
         String[] names = {"Bromo", "Spasst"};
         try {
-            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.1.5")};
+            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.1.3")};
 
             new Lobby(names, addresses, size);
             new Gui(size, size);

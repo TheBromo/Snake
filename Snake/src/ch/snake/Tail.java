@@ -154,11 +154,10 @@ class Tail {
         return score;
     }
 
-    public long getCheckNumber() {
-        return checkNumber;
-    }
-
-    public void setCheckNumber(long checkNumber) {
-        this.checkNumber = checkNumber;
+    public void draw(Graphics g,int snakeSize){
+        for (int x = 0; x <= getLength() - 1; x++) {
+            g.setColor(getColor());
+            g.fillRect(xArray[x], yArray[x], snakeSize, snakeSize);
+        }
     }
 }
