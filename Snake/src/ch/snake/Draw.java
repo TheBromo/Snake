@@ -65,7 +65,7 @@ class Draw extends JLabel implements KeyListener {
                         SnakeHead.lastChar = 'W';
                     }
                     mNetwork.sendCoordinates(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
-                    mNetwork.checkPacketSuccess();
+                    mNetwork.checkPacketSuccess(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
 
 
                 }

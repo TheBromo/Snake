@@ -90,7 +90,19 @@ public class Network {
     }
 
 
-    public void checkPacketSuccess() throws IOException {
+    public void checkPacketSuccess(int x, int y, boolean alive) throws IOException {
+        writeBuffer.position(0).limit(writeBuffer.capacity());
+
+        writeBuffer.putInt(x);
+        writeBuffer.putInt(y);
+        // X , Y, AliveBool, CheckNumber
+        int bool = 0;
+        if (alive) {
+            bool = 1;
+        }
+        writeBuffer.putInt(bool);
+        writeBuffer.putInt(checkNumber);
+        writeBuffer.flip();
         ArrayList<InetAddress> addresses = new ArrayList<>();
         for (InetAddress i : Lobby.getUsers().keySet()) {
             if (!i.equals(InetAddress.getLocalHost())) {
