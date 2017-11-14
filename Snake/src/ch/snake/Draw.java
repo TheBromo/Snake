@@ -85,15 +85,16 @@ class Draw extends JLabel implements KeyListener {
 
                         //Sends the new Coordinates
                         writeBuffer.position(0).limit(writeBuffer.capacity());
-                        int bool = 0;
+
                         writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX());
                         writeBuffer.putInt(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY());
-                        writeBuffer.putLong(counter);
-
+                        // X , Y, AliveBool, CheckNumber
+                        int bool = 0;
                         if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
                             bool = 1;
                         }
                         writeBuffer.putInt(bool);
+                        writeBuffer.putLong(counter);
                         writeBuffer.flip();
                         for (InetAddress address : Lobby.getUsers().keySet()) {
                             if (!address.equals(InetAddress.getLocalHost())) {
@@ -102,7 +103,7 @@ class Draw extends JLabel implements KeyListener {
                             }
                         }
 
-                        //TODO finish this
+
                         long received = -1;
                         while (counter != received) {
 
@@ -123,8 +124,6 @@ class Draw extends JLabel implements KeyListener {
         }
 
 
-
-
         try {
 
             if (selector.selectNow() > 0) {
@@ -140,12 +139,23 @@ class Draw extends JLabel implements KeyListener {
                         System.out.println(sender);
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
                         Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
+
                         if (readBuffer.getInt() == 1) {
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(true);
 
                         } else {
                             Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(false);
                         }
+                        writeBuffer.position(0).limit(writeBuffer.capacity());
+                        writeBuffer.putLong(readBuffer.getLong());
+                        writeBuffer.flip();
+                        for (InetAddress address : Lobby.getUsers().keySet()) {
+                            if (!address.equals(InetAddress.getLocalHost())) {
+                                InetSocketAddress inetsocketAddress = new InetSocketAddress(address, 23723);
+                                socket.send(writeBuffer, inetsocketAddress);
+                            }
+                        }
+
                         System.out.println("Received Coordinates: " + readBuffer.getInt(0) + " " + readBuffer.getInt(4));
                         System.out.println("Alive?: " + Lobby.getUsers().get(socketAddress.getAddress()).isAlive() + "\n");
 

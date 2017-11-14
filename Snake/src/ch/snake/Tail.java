@@ -11,6 +11,7 @@ class Tail {
     private int length = 6;
     private boolean alive=true;
     private Color mColor;
+    private long checkNumber;
 
     Tail(String name) {
         this.name = name;
@@ -151,5 +152,13 @@ class Tail {
 
     int getScore() {
         return score;
+    }
+
+    public long getCheckNumber() {
+        return checkNumber;
+    }
+
+    public void setCheckNumber(long checkNumber) {
+        this.checkNumber = checkNumber;
     }
 }
