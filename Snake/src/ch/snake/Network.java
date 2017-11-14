@@ -116,7 +116,8 @@ public class Network {
                     keys.remove();
                 }
             }
-
+            writeBuffer.position(0).limit(writeBuffer.capacity());
+            writeBuffer.flip();
             for (InetAddress i : addresses) {
                 InetSocketAddress socketAddress = new InetSocketAddress(i, 23723);
                 socket.send(writeBuffer, socketAddress);

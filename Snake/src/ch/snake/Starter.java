@@ -1,5 +1,6 @@
 package ch.snake;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -21,6 +22,8 @@ public class Starter {
             new Lobby(names, addresses, size);
             new Gui(size, size);
         } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

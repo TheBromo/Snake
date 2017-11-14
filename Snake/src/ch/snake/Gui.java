@@ -6,7 +6,7 @@ import java.io.IOException;
 
 class Gui extends JFrame {
 
-    Gui(int sizeX, int sizeY) {
+    Gui(int sizeX, int sizeY) throws IOException {
         super("Snake");
         sizeX -= 10;
         sizeY -= 10;
