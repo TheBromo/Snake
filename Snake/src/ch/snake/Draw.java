@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.*;
 
@@ -103,10 +104,37 @@ class Draw extends JLabel implements KeyListener {
                             }
                         }
 
+                        ArrayList<InetAddress> addresses = new ArrayList<>();
+                        for (InetAddress i : Lobby.getUsers().keySet()) {
+                            if (!i.equals(InetAddress.getLocalHost())) {
+                                addresses.add(i);
+                            }
+                        }
+                        while (addresses.size() > 0) {
+                            if (selector.selectNow() > 0) {
+                                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+                                while (keys.hasNext()) {
+                                    SelectionKey key = keys.next();
 
-                        long received = -1;
-                        while (counter != received) {
+                                    if (key.isReadable()) {
+                                        //reads the new coordinates
+                                        readBuffer.position(0).limit(readBuffer.capacity());
+                                        SocketAddress sender = socket.receive(readBuffer);
+                                        readBuffer.flip();
+                                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
+                                        if (readBuffer.getLong() == counter) {
+                                            addresses.remove(socketAddress.getAddress());
+                                        }
 
+                                    }
+                                    keys.remove();
+                                }
+                            }
+
+                            for (InetAddress i : addresses) {
+                                InetSocketAddress socketAddress = new InetSocketAddress(i, 23723);
+                                socket.send(writeBuffer, socketAddress);
+                            }
                         }
 
                         //must be at the end
@@ -149,12 +177,8 @@ class Draw extends JLabel implements KeyListener {
                         writeBuffer.position(0).limit(writeBuffer.capacity());
                         writeBuffer.putLong(readBuffer.getLong());
                         writeBuffer.flip();
-                        for (InetAddress address : Lobby.getUsers().keySet()) {
-                            if (!address.equals(InetAddress.getLocalHost())) {
-                                InetSocketAddress inetsocketAddress = new InetSocketAddress(address, 23723);
-                                socket.send(writeBuffer, inetsocketAddress);
-                            }
-                        }
+                        socket.send(writeBuffer, sender);
+
 
                         System.out.println("Received Coordinates: " + readBuffer.getInt(0) + " " + readBuffer.getInt(4));
                         System.out.println("Alive?: " + Lobby.getUsers().get(socketAddress.getAddress()).isAlive() + "\n");
