@@ -5,9 +5,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.Iterator;
 import javax.swing.*;
 
 class Draw extends JLabel implements KeyListener {
@@ -17,19 +14,18 @@ class Draw extends JLabel implements KeyListener {
     private Dot dot = new Dot();
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
-    private long last = 0, counter = 0;
-    private DatagramChannel socket;
-    private Selector selector;
+    private long last = 0;
     private Network mNetwork;
     private Collision mCollision;
     private int[] xArray;
     private int[] yArray;
-    ByteBuffer readBuffer, writeBuffer;
-    private HUD hud;
+    private HUD mHUD;
 
-    public Draw() {
+    public Draw() throws IOException {
         generateHSB();
-
+        mNetwork = new Network();
+        mCollision = new Collision();
+        mHUD = new HUD();
     }
 
     protected void paintComponent(Graphics g) {
@@ -126,7 +122,7 @@ class Draw extends JLabel implements KeyListener {
         g.fillRect(dot.getX(), dot.getY(), dot.getSizeX(), dot.getSizeY());
 
         if (nameVisible) {
-            hud.showStats(g, bounds);
+            mHUD.showStats(g, bounds);
         }
         repaint();
     }

@@ -2,6 +2,7 @@ package ch.snake;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 /**
  * @author Manuel Strenge https://github.com/TheBromo
@@ -9,6 +10,8 @@ import java.net.UnknownHostException;
  */
 public class Starter {
     public Starter(int size) throws UnknownHostException {
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
         System.out.println("Local Address= "+InetAddress.getLocalHost());
 
         String[] names = {"Bromo", "Spasst"};
