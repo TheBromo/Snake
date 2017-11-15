@@ -20,7 +20,7 @@ public class Starter implements Discovery.Callback {
     ArrayList<InetAddress> inetAddresses=new ArrayList<>();
 
     public Starter(int size) throws UnknownHostException {
-        WinNative.loadLibrary(new File("lib/native"));
+       /* WinNative.loadLibrary(new File("lib/native"));
 
         Discovery.initailize((short)12345);
         Discovery.setCallback(this);
@@ -36,7 +36,8 @@ public class Starter implements Discovery.Callback {
         }
         Discovery.close();
         System.out.println("DONE");
-
+*/
+       //Removed until it works
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
         System.out.println("Local Address= "+InetAddress.getLocalHost());
