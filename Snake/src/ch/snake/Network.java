@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -15,7 +17,7 @@ public class Network {
     private DatagramChannel socket;
     private Selector selector;
     ByteBuffer readBuffer, writeBuffer;
-    private int checkNumber;
+    private int checkNumber,nameChecknumber =5;
 
     public Network() throws IOException {
         checkNumber = 0;
@@ -28,6 +30,108 @@ public class Network {
 
         readBuffer = ByteBuffer.allocate(1024);
         writeBuffer = ByteBuffer.allocate(1024);
+    }
+
+    public void getNames(String name) throws IOException {
+        sendString(name);
+        receiveNames();
+        packageCheckString(name);
+    }
+
+    public void sendString(String name) throws IOException {
+        //Sends the new Coordinates
+        writeBuffer.position(0).limit(writeBuffer.capacity());
+
+
+        byte[] data = name.getBytes(StandardCharsets.UTF_8);
+        writeBuffer.putInt(data.length);
+        writeBuffer.put(data);
+
+        // X , Y, AliveBool, CheckNumber
+        writeBuffer.putInt(checkNumber);
+        writeBuffer.flip();
+        for (InetAddress address : Lobby.getUsers().keySet()) {
+            if (!address.equals(InetAddress.getLocalHost())) {
+                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                socket.send(writeBuffer, socketAddress);
+            }
+        }
+    }
+
+    public void receiveNames() throws IOException {
+        if (selector.selectNow() > 0) {
+            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+            while (keys.hasNext()) {
+                SelectionKey key = keys.next();
+
+                if (key.isReadable()) {
+                    //reads the new coordinates
+                    readBuffer.position(0).limit(readBuffer.capacity());
+                    SocketAddress sender = socket.receive(readBuffer);
+                    readBuffer.flip();
+
+                    InetSocketAddress socketAddress = (InetSocketAddress) sender;
+
+                    int length = readBuffer.getInt();
+                    byte[] data = new byte[length];
+                    readBuffer.get(data);
+
+                    String str = new String(data, StandardCharsets.UTF_8);
+                    Lobby.getUsers().get(socketAddress.getAddress()).setName(str);
+
+                    writeBuffer.position(0).limit(writeBuffer.capacity());
+                    writeBuffer.putInt(readBuffer.getInt());
+                    writeBuffer.flip();
+                    socket.send(writeBuffer, sender);
+                }
+                keys.remove();
+            }
+        }
+    }
+
+    public void packageCheckString(String name) throws IOException {
+        writeBuffer.position(0).limit(writeBuffer.capacity());
+
+
+        byte[] data = name.getBytes(StandardCharsets.UTF_8);
+        writeBuffer.putInt(data.length);
+        writeBuffer.put(data);
+        writeBuffer.putInt(checkNumber);
+        writeBuffer.flip();
+        ArrayList<InetAddress> addresses = new ArrayList<>();
+        for (InetAddress i : Lobby.getUsers().keySet()) {
+            if (!i.equals(InetAddress.getLocalHost())) {
+                addresses.add(i);
+            }
+        }
+        while (addresses.size()>0){
+            if (selector.selectNow() > 0) {
+                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+                while (keys.hasNext()) {
+                    SelectionKey key = keys.next();
+                    if (key.isReadable()) {
+                        //reads the new coordinates
+                        readBuffer.position(0).limit(readBuffer.capacity());
+                        SocketAddress sender = socket.receive(readBuffer);
+                        readBuffer.flip();
+                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
+                        if (readBuffer.getInt() == nameChecknumber) {
+                            System.out.println();
+                            addresses.remove(socketAddress.getAddress());
+                        }
+                    }
+                    keys.remove();
+                }
+            }
+            for (InetAddress address :addresses) {
+                if (!address.equals(InetAddress.getLocalHost())) {
+                    InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                    socket.send(writeBuffer, socketAddress);
+                }
+            }
+
+
+        }
     }
 
 
@@ -53,7 +157,7 @@ public class Network {
         }
     }
 
-    public void receiveData() throws IOException {
+    public void receiveCoordinates() throws IOException {
         if (selector.selectNow() > 0) {
             Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
             while (keys.hasNext()) {
@@ -69,7 +173,7 @@ public class Network {
                     InetSocketAddress socketAddress = (InetSocketAddress) sender;
                     Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
 
-                    Lobby.getUsers().get(InetAddress.getLocalHost()).setAlive(readBuffer.get() == 1);
+                    Lobby.getUsers().get(socketAddress.getAddress()).setAlive(readBuffer.get() == 1);
 
                     writeBuffer.position(0).limit(writeBuffer.capacity());
                     writeBuffer.putInt(readBuffer.getInt());
@@ -86,7 +190,7 @@ public class Network {
     }
 
 
-    public void checkPacketSuccess(int x, int y, boolean alive) throws IOException {
+    public void checkCoordinatesPacketSuccess(int x, int y, boolean alive) throws IOException {
         writeBuffer.position(0).limit(writeBuffer.capacity());
         // X , Y, AliveBool, CheckNumber
         writeBuffer.putInt(x);
@@ -117,7 +221,6 @@ public class Network {
                         SocketAddress sender = socket.receive(readBuffer);
                         readBuffer.flip();
                         InetSocketAddress socketAddress = (InetSocketAddress) sender;
-                        System.out.println(readBuffer.getInt(0)+"");
                         if (readBuffer.getInt() == checkNumber) {
                             addresses.remove(socketAddress.getAddress());
                         }

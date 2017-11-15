@@ -30,7 +30,7 @@ public class Starter implements Discovery.Callback {
             Discovery.update();
 
             long now = System.currentTimeMillis();
-            if (now - started >= 5000) {
+            if (now - started >= 10000) {
                 break;
             }
         }

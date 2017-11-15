@@ -160,4 +160,8 @@ class Tail {
             g.fillRect(xArray[x], yArray[x], snakeSize, snakeSize);
         }
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
