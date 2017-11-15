@@ -10,7 +10,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 
 public class Network {
     private DatagramChannel socket;
