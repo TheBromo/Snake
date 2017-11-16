@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 /**
  * @author Manuel Strenge https://github.com/TheBromo
- * @version v0.4
+ * @version v0.8
  */
 public class Starter implements Discovery.Callback {
 

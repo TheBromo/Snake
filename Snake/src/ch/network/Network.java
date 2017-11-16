@@ -127,9 +127,13 @@ public class Network {
     }
 
     public void resend() {
-        /* id, checksum*/
         //TODO
 
+    }
+
+    public void answer() {
+        //TODO
+        /* id, checksum*/
     }
 
 
