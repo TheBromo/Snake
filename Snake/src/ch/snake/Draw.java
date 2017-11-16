@@ -26,6 +26,7 @@ class Draw extends JLabel implements KeyListener {
         mNetwork = new Network();
         mCollision = new Collision();
         mHUD = new HUD();
+        mNetwork.waitForConnection();
     }
 
     protected void paintComponent(Graphics g) {
@@ -65,7 +66,7 @@ class Draw extends JLabel implements KeyListener {
                         SnakeHead.lastChar = 'W';
                     }
                     mNetwork.sendCoordinates(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
-                    mNetwork.checkPacketSuccess(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
+                    mNetwork.checkCoordinatesPacketSuccess(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
 
 
                 }
@@ -78,7 +79,7 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-            mNetwork.receiveData();
+            mNetwork.receiveCoordinates();
         } catch (IOException e) {
             e.printStackTrace();
         }
