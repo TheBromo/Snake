@@ -2,7 +2,7 @@ package ch.snake;
 
 import java.awt.*;
 
-class Tail {
+public class Tail {
 
     private int[] xArray = new int[100];
     private int[] yArray = new int[100];
@@ -146,7 +146,7 @@ class Tail {
         this.alive = alive;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
@@ -164,4 +164,5 @@ class Tail {
     public void setName(String name) {
         this.name = name;
     }
+
 }

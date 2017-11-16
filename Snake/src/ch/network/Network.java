@@ -1,5 +1,6 @@
 package ch.network;
 
+import ch.snake.Tail;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -9,16 +10,21 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class Network {
+    ArrayList<Packet> sentPackets = new ArrayList<>();
+    ArrayList<Packet> receivedPackets = new ArrayList<>();
     ByteBuffer readBuffer, writeBuffer;
     private DatagramChannel socket;
     private Selector selector;
     private int checkNumber;
 
+
     public Network() throws IOException {
         checkNumber = 0;
+
         socket = DatagramChannel.open();
         socket.configureBlocking(false);
         socket.bind(new InetSocketAddress(23723));
@@ -30,7 +36,46 @@ public class Network {
         writeBuffer = ByteBuffer.allocate(1024);
     }
 
-    public void createNamePackage(String name) {
+    private void prepareWriteBuffer() {
+        writeBuffer.position(0).limit(writeBuffer.capacity());
+    }
+
+    private void finishWritingIntoBuffer() {
+        writeBuffer.flip();
+    }
+
+    public void sendPacket(HashMap<InetAddress, Tail> users, PacketType packetType) throws IOException {
+        for (InetAddress address : users.keySet()) {
+            if (address.equals(InetAddress.getLocalHost())) continue;
+
+            Packet packet = new Packet(address);
+            if (packetType == PacketType.NAME) {
+
+                packet.addString(users.get(InetAddress.getLocalHost()).getName());
+            } else if (packetType == PacketType.COORDINATES) {
+
+            }
+            sentPackets.add(packet);
+
+            prepareWriteBuffer();
+            writeBuffer.putInt(packet.getId());
+            writeBuffer.putInt(packet.getCheckNumber());
+            if (packet.getInt() != null) {
+                for (int i : packet.getInt()) {
+                    writeBuffer.putInt(i);
+                }
+            }
+            writeBuffer.put(packet.getBytesArray());
+            finishWritingIntoBuffer();
+
+            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+            socket.send(writeBuffer, socketAddress);
+        }
+        checkNumber++;
+    }
+
+
+    public void receivePacket() {
 
     }
 
@@ -176,3 +221,4 @@ public class Network {
         System.out.println("Success");
     }
 }
+
