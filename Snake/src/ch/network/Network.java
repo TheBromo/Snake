@@ -128,6 +128,7 @@ public class Network {
 
     public void resend() {
         /* id, checksum*/
+        //TODO
 
     }
 

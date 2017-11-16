@@ -41,10 +41,10 @@ public class Packet {
     }
 
     public void addString(String string) {
-        /* id, length, string */
+        /*  length, string */
         type = PacketType.NAME;
         byte[] data = string.getBytes(StandardCharsets.UTF_8);
-        bytes.add((byte) data.length);
+        bytes.add((byte) data.length);//TODO not sure if this will work
         for (int index = 0; index < data.length; index++) {
             bytes.add(data[index]);
         }
