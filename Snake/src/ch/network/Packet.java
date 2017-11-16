@@ -8,7 +8,8 @@ import java.util.Random;
 
 enum PacketType {
     NAME(1),
-    COORDINATES(2);
+    COORDINATES(2),
+    RESPONSE(3);
 
     private final int type;
 
@@ -23,7 +24,9 @@ enum PacketType {
 
 public class Packet {
     private InetAddress receiver;
-    private int id, checkNumber;
+    PacketType type;
+    private int checkNumber;
+    private String name;
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
 
@@ -38,8 +41,8 @@ public class Packet {
     }
 
     public void addString(String string) {
-        /* id,checkNumber, length, string */
-        id = PacketType.NAME.type();
+        /* id, length, string */
+        type = PacketType.NAME;
         byte[] data = string.getBytes(StandardCharsets.UTF_8);
         bytes.add((byte) data.length);
         for (int index = 0; index < data.length; index++) {
@@ -49,14 +52,19 @@ public class Packet {
 
     public void addInt(int integer) {
         integers.add(integer);
-
     }
 
-    public int getId() {
-        return id;
+    public PacketType getType() {
+        return type;
     }
 
+    public void setType(PacketType type) {
+        this.type = type;
+    }
 
+    public InetAddress getReceiver() {
+        return receiver;
+    }
 
     public int getCheckNumber() {
         return checkNumber;
@@ -70,6 +78,14 @@ public class Packet {
         return integers;
     }
 
+    public int intSize() {
+        return integers.size();
+    }
+
+    public String getName() {
+        return null;
+    }
+
     public int[] getInt() {
         if (integers.size() == 0) return null;
 
@@ -81,7 +97,22 @@ public class Packet {
         return array;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIntegers(ArrayList<Integer> integers) {
+        this.integers = integers;
+    }
+
+    public void setBytes(ArrayList<Byte> bytes) {
+        this.bytes = bytes;
+    }
+
     public byte[] getBytesArray() {
+
+        if (bytes.size() == 0) return null;
+
         byte[] array = new byte[bytes.size()];
         Iterator<Byte> iterator = bytes.iterator();
         for (int i = 0; i < array.length; i++) {
