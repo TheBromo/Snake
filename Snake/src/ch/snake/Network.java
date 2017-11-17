@@ -83,7 +83,7 @@ public class Network {
             prepareWriteBuffer();
 
             //Packet header
-            writeBuffer.putInt(packet.getType().type());
+            writeBuffer.putInt(packetType.type());
             writeBuffer.putInt(packet.getCheckNumber());
 
             //packet content
