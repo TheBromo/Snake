@@ -66,7 +66,8 @@ public class Network {
         writeBuffer.flip();
     }
 
-    public void sendPacket(HashMap<InetAddress, Tail> users, PacketType packetType) throws IOException {
+
+    public void sendPacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads, PacketType packetType) throws IOException {
 
         //Loops through all players
         for (InetAddress address : users.keySet()) {
@@ -95,8 +96,11 @@ public class Network {
 
             } else if (packetType == PacketType.COORDINATES) {
 
+                Coordinates you = heads.get(InetAddress.getLocalHost());
+                packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getLocalHost()).isAlive());
+
                 //the new Coordinates of a user will be sent
-                /*PacketType,checkNumber,int, int, boolean,  */
+                /*PacketType,checkNumber,int x, int y, boolean,  */
                 for (int i : packet.getInt()) {
                     writeBuffer.putInt(i);
                 }
@@ -116,7 +120,7 @@ public class Network {
         checkNumber++;
     }
 
-    public void receivePacket(HashMap<InetAddress, Tail> users) throws IOException {
+    public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
         if (selector.selectNow() > 0) {
             Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
             while (keys.hasNext()) {
@@ -164,9 +168,13 @@ public class Network {
                         users.get(address).setName(str);
 
                     } else if (packet.getType() == PacketType.COORDINATES) {
-
-
-                        //TODO
+                        heads.get(address).setNewX(readBuffer.getInt());
+                        heads.get(address).setNewY(readBuffer.getInt());
+                        if (readBuffer.getInt() == 1) {
+                            users.get(address).setAlive(true);
+                        } else {
+                            users.get(address).setAlive(false);
+                        }
 
                     } else if (packet.getType() == PacketType.RESPONSE) {
 
@@ -193,16 +201,43 @@ public class Network {
         }
     }
 
-    public void resend() {
-        //TODO
+    public void resend() throws IOException {
+        for (Packet packet : sentPackets) {
+            prepareWriteBuffer();
+            writeBuffer.putInt(packet.getType().type());
+            writeBuffer.putInt(packet.getCheckNumber());
+
+            if (packet.getType() == PacketType.COORDINATES) {
+                for (int i : packet.getInt()) {
+                    writeBuffer.putInt(i);
+                }
+            } else if (packet.getType() == PacketType.NAME) {
+                writeBuffer.put(packet.getBytesArray());
+            }
+            finishWritingIntoBuffer();
+            //creates a socket address
+            InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+            //sends the data
+            socket.send(writeBuffer, socketAddress);
+        }
 
     }
 
-    public void answer() {
-        //TODO
+    public void answer() throws IOException {
+
         /* id, checksum*/
+
+        for (Packet packet : receivedPackets) {
+            prepareWriteBuffer();
+            writeBuffer.putInt(PacketType.RESPONSE.type());
+            writeBuffer.putInt(packet.getCheckNumber());
+            finishWritingIntoBuffer();
+            //creates a socket address
+            InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+            //sends the data
+            socket.send(writeBuffer, socketAddress);
+        }
     }
 
 
 }
-

@@ -33,7 +33,7 @@ class Draw extends JLabel implements KeyListener {
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
     private long last = 0;
-    private OldNetwork mNetwork;
+    private Network mNetwork;
     private Collision mCollision;
     private int[] xArray;
     private int[] yArray;
@@ -41,10 +41,10 @@ class Draw extends JLabel implements KeyListener {
 
     public Draw() throws IOException {
         generateHSB();
-        mNetwork = new OldNetwork();
+        mNetwork = new Network();
         mCollision = new Collision();
         mHUD = new HUD();
-        mNetwork.waitForConnection();
+        mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.NAME);
     }
 
     protected void paintComponent(Graphics g) {
@@ -83,9 +83,7 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
-                    mNetwork.sendCoordinates(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
-                    mNetwork.checkCoordinatesPacketSuccess(Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX(), Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY(), Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive());
-
+                    mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.COORDINATES);
 
                 }
             } catch (UnknownHostException e) {
@@ -97,7 +95,9 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-            mNetwork.receiveCoordinates();
+            mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
+            mNetwork.answer();
+            mNetwork.resend();
         } catch (IOException e) {
             e.printStackTrace();
         }

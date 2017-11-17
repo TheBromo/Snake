@@ -3,6 +3,7 @@ package ch.snake;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -44,7 +45,6 @@ public class Packet {
     private InetAddress receiver;
     private PacketType type;
     private int checkNumber;
-    private String name;
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
 
@@ -76,6 +76,15 @@ public class Packet {
         for (int index = 0; index < data.length; index++) {
             bytes.add(data[index]);
         }
+    }
+
+    public void addCoordinates(int x, int y, boolean alive) {
+        /* int x,int y, boolean alive*/
+        type = PacketType.COORDINATES;
+        addInt(x);
+        addInt(y);
+        addBoolean(alive);
+
     }
 
     public void addInt(int integer) {
@@ -110,9 +119,6 @@ public class Packet {
         return integers.size();
     }
 
-    public String getName() {
-        return null;
-    }
 
     public int[] getInt() {
         if (integers.size() == 0) return null;
@@ -125,9 +131,6 @@ public class Packet {
         return array;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public void setIntegers(ArrayList<Integer> integers) {
         this.integers = integers;
