@@ -180,7 +180,7 @@ public class Network {
                     }
 
                     //Response packets must not be confirmed to be sent
-                    if (packet.type != PacketType.RESPONSE) {
+                    if (packet.getType() != PacketType.RESPONSE) {
                         //adds to the list of packets that need to be confirmed
                         receivedPackets.add(packet);
                     }
