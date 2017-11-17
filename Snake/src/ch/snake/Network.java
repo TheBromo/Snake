@@ -74,52 +74,54 @@ public class Network {
         for (InetAddress address : users.keySet()) {
 
             //skips the writing process to yourself
-            if (address.equals(InetAddress.getLocalHost())) continue;
+            if (!address.equals(InetAddress.getLocalHost())) {
 
-            //Creates a new Packet that will be put into the byteBuffer to be sent
-            Packet packet = new Packet(address, checkNumber);
-            sentPackets.add(packet);
 
-            //Starts the process of writing to the packets
-            prepareWriteBuffer();
+                //Creates a new Packet that will be put into the byteBuffer to be sent
+                Packet packet = new Packet(address, checkNumber);
+                sentPackets.add(packet);
 
-            //Packet header
-            writeBuffer.putInt(packetType.type());
-            writeBuffer.putInt(packet.getCheckNumber());
+                //Starts the process of writing to the packets
+                prepareWriteBuffer();
 
-            //packet content
-            if (packetType == PacketType.NAME) {
+                //Packet header
+                writeBuffer.putInt(packetType.type());
+                writeBuffer.putInt(packet.getCheckNumber());
 
-                //The name of a user will be sent
+                //packet content
+                if (packetType == PacketType.NAME) {
+
+                    //The name of a user will be sent
                 /*PacketType, checkNumber , length, string,*/
-                packet.addString(users.get(InetAddress.getLocalHost()).getName());
-                writeBuffer.putInt(packet.getBytesArray().length);
-                writeBuffer.put(packet.getBytesArray());
+                    packet.addString(users.get(InetAddress.getLocalHost()).getName());
+                    writeBuffer.putInt(packet.getBytesArray().length);
+                    writeBuffer.put(packet.getBytesArray());
 
-            } else if (packetType == PacketType.COORDINATES) {
+                } else if (packetType == PacketType.COORDINATES) {
 
-                Coordinates you = heads.get(InetAddress.getLocalHost());
-                packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getLocalHost()).isAlive());
+                    Coordinates you = heads.get(InetAddress.getLocalHost());
+                    packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getLocalHost()).isAlive());
 
-                //the new Coordinates of a user will be sent
+                    //the new Coordinates of a user will be sent
                 /*PacketType,checkNumber,int x, int y, boolean,  */
-                for (int i : packet.getInt()) {
-                    writeBuffer.putInt(i);
+                    for (int i : packet.getInt()) {
+                        writeBuffer.putInt(i);
+                    }
+
+
                 }
 
+                //Stops the writing to the Buffer, the buffer is now ready to be sent
+                finishWritingIntoBuffer();
 
+                //creates a socket address
+                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+                //sends the data
+                socket.send(writeBuffer, socketAddress);
             }
-
-            //Stops the writing to the Buffer, the buffer is now ready to be sent
-            finishWritingIntoBuffer();
-
-            //creates a socket address
-            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-            //sends the data
-            socket.send(writeBuffer, socketAddress);
+            //increases the checkNumber used for packet control
+            checkNumber++;
         }
-        //increases the checkNumber used for packet control
-        checkNumber++;
     }
 
     public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
@@ -182,7 +184,7 @@ public class Network {
 
                     } else if (packet.getType() == PacketType.RESPONSE) {
 
-                        List<Packet> list = new ArrayList<Packet>();
+                        List<Packet> list = new ArrayList<>();
 
                         //goes through all packets that are still awaiting to be confirmed that they have been sent
                         for (Packet p : sentPackets) {
