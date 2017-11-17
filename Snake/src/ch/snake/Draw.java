@@ -33,7 +33,7 @@ class Draw extends JLabel implements KeyListener {
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
     private long last = 0;
-    private Network mNetwork;
+    private OldNetwork mNetwork;
     private Collision mCollision;
     private int[] xArray;
     private int[] yArray;
@@ -41,7 +41,7 @@ class Draw extends JLabel implements KeyListener {
 
     public Draw() throws IOException {
         generateHSB();
-        mNetwork = new Network();
+        mNetwork = new OldNetwork();
         mCollision = new Collision();
         mHUD = new HUD();
         mNetwork.waitForConnection();

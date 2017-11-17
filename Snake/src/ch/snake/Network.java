@@ -1,16 +1,17 @@
 package ch.snake;
 
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -32,17 +33,24 @@ import java.util.Iterator;
  */
 
 public class Network {
+
+    ArrayList<Packet> sentPackets = new ArrayList<>();
+    ArrayList<Packet> receivedPackets = new ArrayList<>();
+    ByteBuffer readBuffer, writeBuffer;
     private DatagramChannel socket;
     private Selector selector;
-    ByteBuffer readBuffer, writeBuffer;
-    private int checkNumber,nameChecknumber =5;
+    private int checkNumber;
+
 
     public Network() throws IOException {
         checkNumber = 0;
+
+        //prepares the socket
         socket = DatagramChannel.open();
         socket.configureBlocking(false);
         socket.bind(new InetSocketAddress(23723));
 
+        //creates a selector for reading incoming Traffic
         selector = Selector.open();
         socket.register(selector, SelectionKey.OP_READ);
 
@@ -50,212 +58,151 @@ public class Network {
         writeBuffer = ByteBuffer.allocate(1024);
     }
 
-    public void getNames(String name) throws IOException {
-        sendString(name);
-        receiveNames();
-        packageCheckString(name);
-    }
-
-    public void sendString(String name) throws IOException {
-        //Sends the new Coordinates
+    private void prepareWriteBuffer() {
         writeBuffer.position(0).limit(writeBuffer.capacity());
+    }
 
-
-        byte[] data = name.getBytes(StandardCharsets.UTF_8);
-        writeBuffer.putInt(data.length);
-        writeBuffer.put(data);
-
-        // X , Y, AliveBool, CheckNumber
-        writeBuffer.putInt(checkNumber);
+    private void finishWritingIntoBuffer() {
         writeBuffer.flip();
-        for (InetAddress address : Lobby.getUsers().keySet()) {
-            if (!address.equals(InetAddress.getLocalHost())) {
-                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                socket.send(writeBuffer, socketAddress);
-            }
-        }
     }
 
-    public void receiveNames() throws IOException {
-        if (selector.selectNow() > 0) {
-            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-            while (keys.hasNext()) {
-                SelectionKey key = keys.next();
+    public void sendPacket(HashMap<InetAddress, Tail> users, PacketType packetType) throws IOException {
 
-                if (key.isReadable()) {
-                    //reads the new coordinates
-                    readBuffer.position(0).limit(readBuffer.capacity());
-                    SocketAddress sender = socket.receive(readBuffer);
-                    readBuffer.flip();
+        //Loops through all players
+        for (InetAddress address : users.keySet()) {
 
-                    InetSocketAddress socketAddress = (InetSocketAddress) sender;
+            //skips the writing process to yourself
+            if (address.equals(InetAddress.getLocalHost())) continue;
 
-                    int length = readBuffer.getInt();
-                    byte[] data = new byte[length];
-                    readBuffer.get(data);
+            //Creates a new Packet that will be put into the byteBuffer to be sent
+            Packet packet = new Packet(address, checkNumber);
+            sentPackets.add(packet);
 
-                    String str = new String(data, StandardCharsets.UTF_8);
-                    Lobby.getUsers().get(socketAddress.getAddress()).setName(str);
+            //Starts the process of writing to the packets
+            prepareWriteBuffer();
 
-                    writeBuffer.position(0).limit(writeBuffer.capacity());
-                    writeBuffer.putInt(readBuffer.getInt());
-                    writeBuffer.flip();
-                    socket.send(writeBuffer, sender);
+            //Packet header
+            writeBuffer.putInt(packet.getType().type());
+            writeBuffer.putInt(packet.getCheckNumber());
+
+            //packet content
+            if (packetType == PacketType.NAME) {
+
+                //The name of a user will be sent
+                /*PacketType, checkNumber , length, string,*/
+                packet.addString(users.get(InetAddress.getLocalHost()).getName());
+                writeBuffer.put(packet.getBytesArray());
+
+            } else if (packetType == PacketType.COORDINATES) {
+
+                //the new Coordinates of a user will be sent
+                /*PacketType,checkNumber,int, int, boolean,  */
+                for (int i : packet.getInt()) {
+                    writeBuffer.putInt(i);
                 }
-                keys.remove();
-            }
-        }
-    }
-
-    public void packageCheckString(String name) throws IOException {
-        writeBuffer.position(0).limit(writeBuffer.capacity());
 
 
-        byte[] data = name.getBytes(StandardCharsets.UTF_8);
-        writeBuffer.putInt(data.length);
-        writeBuffer.put(data);
-        writeBuffer.putInt(checkNumber);
-        writeBuffer.flip();
-        ArrayList<InetAddress> addresses = new ArrayList<>();
-        for (InetAddress i : Lobby.getUsers().keySet()) {
-            if (!i.equals(InetAddress.getLocalHost())) {
-                addresses.add(i);
-            }
-        }
-        while (addresses.size()>0){
-            if (selector.selectNow() > 0) {
-                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-                while (keys.hasNext()) {
-                    SelectionKey key = keys.next();
-                    if (key.isReadable()) {
-                        //reads the new coordinates
-                        readBuffer.position(0).limit(readBuffer.capacity());
-                        SocketAddress sender = socket.receive(readBuffer);
-                        readBuffer.flip();
-                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
-                        if (readBuffer.getInt() == nameChecknumber) {
-                            System.out.println();
-                            addresses.remove(socketAddress.getAddress());
-                        }
-                    }
-                    keys.remove();
-                }
-            }
-            for (InetAddress address :addresses) {
-                if (!address.equals(InetAddress.getLocalHost())) {
-                    InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                    socket.send(writeBuffer, socketAddress);
-                }
             }
 
+            //Stops the writing to the Buffer, the buffer is now ready to be sent
+            finishWritingIntoBuffer();
 
+            //creates a socket address
+            InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
+            //sends the data
+            socket.send(writeBuffer, socketAddress);
         }
-    }
-
-
-    public void sendCoordinates(int x, int y, boolean alive) throws IOException {
-        //Sends the new Coordinates
-        writeBuffer.position(0).limit(writeBuffer.capacity());
-
-        writeBuffer.putInt(x);
-        writeBuffer.putInt(y);
-        // X , Y, AliveBool, CheckNumber
-        int bool = 0;
-        if (alive) {
-            bool = 1;
-        }
-        writeBuffer.put((byte)bool);
-        writeBuffer.putInt(checkNumber);
-        writeBuffer.flip();
-        for (InetAddress address : Lobby.getUsers().keySet()) {
-            if (!address.equals(InetAddress.getLocalHost())) {
-                InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
-                socket.send(writeBuffer, socketAddress);
-            }
-        }
-    }
-
-    public void receiveCoordinates() throws IOException {
-        if (selector.selectNow() > 0) {
-            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-            while (keys.hasNext()) {
-                SelectionKey key = keys.next();
-
-                if (key.isReadable()) {
-                    //reads the new coordinates
-                    readBuffer.position(0).limit(readBuffer.capacity());
-                    SocketAddress sender = socket.receive(readBuffer);
-                    readBuffer.flip();
-
-                    System.out.println(sender);
-                    InetSocketAddress socketAddress = (InetSocketAddress) sender;
-                    Lobby.getHeads().get(socketAddress.getAddress()).setPos(readBuffer.getInt(), readBuffer.getInt());
-
-                    Lobby.getUsers().get(socketAddress.getAddress()).setAlive(readBuffer.get() == 1);
-
-                    writeBuffer.position(0).limit(writeBuffer.capacity());
-                    writeBuffer.putInt(readBuffer.getInt());
-                    writeBuffer.flip();
-                    socket.send(writeBuffer, sender);
-
-                    System.out.println("Received Coordinates: " + readBuffer.getInt(0) + " " + readBuffer.getInt(4));
-                    System.out.println("Alive?: " + Lobby.getUsers().get(socketAddress.getAddress()).isAlive() + "\n");
-
-                }
-                keys.remove();
-            }
-        }
-    }
-
-
-    public void checkCoordinatesPacketSuccess(int x, int y, boolean alive) throws IOException {
-        writeBuffer.position(0).limit(writeBuffer.capacity());
-        // X , Y, AliveBool, CheckNumber
-        writeBuffer.putInt(x);
-        writeBuffer.putInt(y);
-        int bool = 0;
-        if (alive) {
-            bool = 1;
-        }
-        writeBuffer.put((byte)bool);
-        writeBuffer.putInt(checkNumber);
-        writeBuffer.flip();
-
-        ArrayList<InetAddress> addresses = new ArrayList<>();
-        for (InetAddress i : Lobby.getUsers().keySet()) {
-            if (!i.equals(InetAddress.getLocalHost())) {
-                addresses.add(i);
-            }
-        }
-        while (addresses.size() > 0) {
-            if (selector.selectNow() > 0) {
-                Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
-                while (keys.hasNext()) {
-                    SelectionKey key = keys.next();
-
-                    if (key.isReadable()) {
-                        //reads the new coordinates
-                        readBuffer.position(0).limit(readBuffer.capacity());
-                        SocketAddress sender = socket.receive(readBuffer);
-                        readBuffer.flip();
-                        InetSocketAddress socketAddress = (InetSocketAddress) sender;
-                        if (readBuffer.getInt() == checkNumber) {
-                            addresses.remove(socketAddress.getAddress());
-                        }
-                    }
-                    keys.remove();
-                }
-            }
-            for (InetAddress i : addresses) {
-                InetSocketAddress socketAddress = new InetSocketAddress(i, 23723);
-                socket.send(writeBuffer, socketAddress);
-            }
-        }
+        //increases the checkNumber used for packet control
         checkNumber++;
     }
 
+    public void receivePacket(HashMap<InetAddress, Tail> users) throws IOException {
+        if (selector.selectNow() > 0) {
+            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+            while (keys.hasNext()) {
+                SelectionKey key = keys.next();
 
-    public void waitForConnection() throws IOException {
+                //checks if any packets were received
+                if (key.isReadable()) {
+                    //prepares buffer for reading
+                    readBuffer.position(0).limit(readBuffer.capacity());
+                    //gets the address of the sender
+                    SocketAddress sender = socket.receive(readBuffer);
+                    readBuffer.flip();
+
+                    //the senders InetAddress
+                    InetAddress address = ((InetSocketAddress) sender).getAddress();
+
+                    //creates a new Packet
+                    Packet packet = new Packet(address);
+
+                    //gets the packetType as number
+                    int typeNumber = readBuffer.getInt();
+
+                    //Turns the number into PacketType
+                    for (PacketType pack : PacketType.values()) {
+                        if (pack.type() == typeNumber) packet.setType(pack);
+                    }
+
+                    //gets the check number of the packet
+                    packet.setCheckNumber(readBuffer.getInt());
+
+                    //Does the according action to each PacketType
+                    if (packet.getType() == PacketType.NAME) {
+
+                        //gets the strings length
+                        int length = readBuffer.getInt();
+
+                        //gets the string as bytes
+                        byte[] data = new byte[length];
+                        readBuffer.get(data);
+
+                        //converts the bytes to string
+                        String str = new String(data, StandardCharsets.UTF_8);
+
+                        //gives the sender´s name to himself
+                        users.get(address).setName(str);
+
+                    } else if (packet.getType() == PacketType.COORDINATES) {
+
+
+                        //TODO
+
+                    } else if (packet.getType() == PacketType.RESPONSE) {
+
+                        //goes through all packets that are still awaiting to be confirmed that they have been sent
+                        for (Packet p : sentPackets) {
+
+                            //if the response packet belongs to a sent packet, it will be removed
+                            if (p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver())) {
+                                sentPackets.remove(p);
+                            }
+                        }
+
+                    }
+
+                    //Response packets must not be confirmed to be sent
+                    if (packet.getType() != PacketType.RESPONSE) {
+                        //adds to the list of packets that need to be confirmed
+                        receivedPackets.add(packet);
+                    }
+
+                }
+                keys.remove();
+            }
+        }
+    }
+
+    public void resend() {
+        //TODO
 
     }
+
+    public void answer() {
+        //TODO
+        /* id, checksum*/
+    }
+
+
 }
+

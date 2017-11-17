@@ -1,10 +1,9 @@
-package ch.network;
+package ch.snake;
 
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
 
 /**
  * SwingSnake
