@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * SwingSnake
@@ -181,14 +182,17 @@ public class Network {
 
                     } else if (packet.getType() == PacketType.RESPONSE) {
 
+                        List<Packet> list = new ArrayList<Packet>();
+
                         //goes through all packets that are still awaiting to be confirmed that they have been sent
                         for (Packet p : sentPackets) {
 
                             //if the response packet belongs to a sent packet, it will be removed
                             if (p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver())) {
-                                sentPackets.remove(p);
+                                list.add(p);
                             }
                         }
+                        sentPackets.removeAll(list);
 
                     }
 
