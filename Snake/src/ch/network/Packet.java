@@ -41,28 +41,39 @@ enum PacketType {
 }
 
 public class Packet {
+
     private InetAddress receiver;
-    PacketType type;
+    private PacketType type;
     private int checkNumber;
     private String name;
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
 
-    public Packet(InetAddress receiver) {
+    public Packet(InetAddress receiver, int checkNumber) {
         this.receiver = receiver;
-        Random random = new Random();
-        checkNumber = random.nextInt();
+        this.checkNumber = checkNumber;
     }
 
-    public void addBoolean() {
+    public Packet(InetAddress receiver) {
+        this.receiver = receiver;
+    }
 
+    public void addBoolean(boolean bool) {
+        int b;
+        if (bool) {
+            b = 1;
+            integers.add(b);
+        } else {
+            b = 0;
+            integers.add(b);
+        }
     }
 
     public void addString(String string) {
         /*  length, string */
         type = PacketType.NAME;
         byte[] data = string.getBytes(StandardCharsets.UTF_8);
-        bytes.add((byte) data.length);//TODO not sure if this will work
+        bytes.add((byte) data.length);
         for (int index = 0; index < data.length; index++) {
             bytes.add(data[index]);
         }
