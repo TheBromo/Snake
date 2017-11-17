@@ -92,6 +92,7 @@ public class Network {
                 //The name of a user will be sent
                 /*PacketType, checkNumber , length, string,*/
                 packet.addString(users.get(InetAddress.getLocalHost()).getName());
+                writeBuffer.putInt(packet.getBytesArray().length);
                 writeBuffer.put(packet.getBytesArray());
 
             } else if (packetType == PacketType.COORDINATES) {

@@ -72,7 +72,6 @@ public class Packet {
         /*  length, string */
         type = PacketType.NAME;
         byte[] data = string.getBytes(StandardCharsets.UTF_8);
-        bytes.add((byte) data.length);
         for (int index = 0; index < data.length; index++) {
             bytes.add(data[index]);
         }

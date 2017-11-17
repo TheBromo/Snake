@@ -62,7 +62,7 @@ public class Starter implements Discovery.Callback {
         inetAddresses.add(InetAddress.getLocalHost());
         String[] names = {"Bromo", "Spasst"};
         try {
-            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("")}/* inetAddresses.toArray(new InetAddress[inetAddresses.size()])*/;
+            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.1.5")}/* inetAddresses.toArray(new InetAddress[inetAddresses.size()])*/;
             new Lobby(names, addresses, size);
             new Gui(size, size);
         } catch (UnknownHostException e) {
