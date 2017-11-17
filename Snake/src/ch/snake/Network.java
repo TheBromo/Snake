@@ -159,7 +159,9 @@ public class Network {
 
                         //gets the string as bytes
                         byte[] data = new byte[length];
-                        readBuffer.get(data);
+                        for (int i = 0; i < data.length; i++) {
+                            data[i] = readBuffer.get();
+                        }
 
                         //converts the bytes to string
                         String str = new String(data, StandardCharsets.UTF_8);
