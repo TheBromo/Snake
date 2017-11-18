@@ -272,9 +272,8 @@ public class Network {
     public void answer() throws IOException {
 
         /* id, checksum*/
-        List<Packet>packetList = new ArrayList<>();
+        List<Packet> packetList = new ArrayList<>();
         for (Packet packet : receivedPackets) {
-            //TODO remove if answered
             System.out.println("---------------------------------------------------------");
             System.out.println("Answer: ");
             System.out.println(PacketType.RESPONSE);
