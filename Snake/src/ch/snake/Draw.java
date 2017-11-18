@@ -169,7 +169,7 @@ class Draw extends JLabel implements KeyListener {
             if (SnakeHead.lastChar != 'W') {
                 SnakeHead.nextDir = 'E';
             }
-        } else if (e.getKeyCode() == KeyEvent.VK_TAB) {
+        } else if (e.getKeyCode() == KeyEvent.VK_T) {
             nameVisible = true;
         }
     }
