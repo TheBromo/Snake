@@ -69,7 +69,8 @@ public class Network {
 
 
     public void sendPacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads, PacketType packetType) throws IOException {
-
+        System.out.println("---------------------------------------------------------");
+        System.out.println("Sending:");
         //Loops through all players
         for (InetAddress address : users.keySet()) {
 
@@ -87,7 +88,9 @@ public class Network {
                 //Packet header
                 writeBuffer.putInt(packetType.type());
                 writeBuffer.putInt(packet.getCheckNumber());
-
+                System.out.println("Network.sendPacket");
+                System.out.println("users = [" + users + "], heads = [" + heads + "], packetType = [" + packetType + "]");
+                System.out.println(packet.getCheckNumber());
                 //packet content
                 if (packetType == PacketType.NAME) {
 
@@ -118,6 +121,7 @@ public class Network {
                 InetSocketAddress socketAddress = new InetSocketAddress(address, 23723);
                 //sends the data
                 socket.send(writeBuffer, socketAddress);
+                System.out.println("---------------------------------------------------------");
             }
             //increases the checkNumber used for packet control
             checkNumber++;
@@ -141,8 +145,11 @@ public class Network {
                     //the senders InetAddress
                     InetAddress address = ((InetSocketAddress) sender).getAddress();
 
+                    System.out.println("---------------------------------------------------------");
+                    System.out.println("Receiving:");
                     //creates a new Packet
                     Packet packet = new Packet(address);
+                    System.out.println("packet.getReceiver() = " + packet.getReceiver());
 
                     //gets the packetType as number
                     int typeNumber = readBuffer.getInt();
@@ -151,10 +158,12 @@ public class Network {
                     for (PacketType pack : PacketType.values()) {
                         if (pack.type() == typeNumber) packet.setType(pack);
                     }
+                    System.out.println("packet.type = " + packet.getType());
 
                     //gets the check number of the packet
                     packet.setCheckNumber(readBuffer.getInt());
 
+                    System.out.println("packet.getCheckNumber() = " + packet.getCheckNumber());
                     //Does the according action to each PacketType
                     if (packet.getType() == PacketType.NAME) {
 
@@ -170,15 +179,20 @@ public class Network {
                         //converts the bytes to string
                         String str = new String(data, StandardCharsets.UTF_8);
 
+                        System.out.println("Received String: " + str);
                         //gives the sender´s name to himself
                         users.get(address).setName(str);
 
                     } else if (packet.getType() == PacketType.COORDINATES) {
                         heads.get(address).setNewX(readBuffer.getInt());
+                        System.out.println(heads.get(address).newX);
                         heads.get(address).setNewY(readBuffer.getInt());
+                        System.out.println(heads.get(address).newY);
                         if (readBuffer.getInt() == 1) {
+                            System.out.println("Alive");
                             users.get(address).setAlive(true);
                         } else {
+                            System.out.println("dead");
                             users.get(address).setAlive(false);
                         }
 
@@ -192,6 +206,9 @@ public class Network {
                             //if the response packet belongs to a sent packet, it will be removed
                             if (p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver())) {
                                 list.add(p);
+                                System.out.println(p.getType());
+                                System.out.println(p.getCheckNumber());
+                                System.out.println(p.getReceiver());
                             }
                         }
                         sentPackets.removeAll(list);
@@ -200,9 +217,11 @@ public class Network {
 
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {
+                        System.out.println(packet.getType());
                         //adds to the list of packets that need to be confirmed
                         receivedPackets.add(packet);
                     }
+                    System.out.println("---------------------------------------------------------");
 
                 }
                 keys.remove();
@@ -212,13 +231,18 @@ public class Network {
 
     public void resend() throws IOException {
         for (Packet packet : sentPackets) {
+
+            System.out.println("---------------------------------------------------------");
+            System.out.println("resending: ");
             prepareWriteBuffer();
             writeBuffer.putInt(packet.getType().type());
+            System.out.println(packet.getType());
             writeBuffer.putInt(packet.getCheckNumber());
-
+            System.out.println(packet.getCheckNumber());
             if (packet.getType() == PacketType.COORDINATES) {
                 for (int i : packet.getInt()) {
                     writeBuffer.putInt(i);
+                    System.out.println(i);
                 }
             } else if (packet.getType() == PacketType.NAME) {
                 writeBuffer.put(packet.getBytesArray());
@@ -228,6 +252,7 @@ public class Network {
             InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
             //sends the data
             socket.send(writeBuffer, socketAddress);
+            System.out.println("---------------------------------------------------------");
         }
 
     }
@@ -237,14 +262,20 @@ public class Network {
         /* id, checksum*/
 
         for (Packet packet : receivedPackets) {
+
+            System.out.println("---------------------------------------------------------");
+            System.out.println("Answer: ");
+            System.out.println(PacketType.RESPONSE);
             prepareWriteBuffer();
             writeBuffer.putInt(PacketType.RESPONSE.type());
             writeBuffer.putInt(packet.getCheckNumber());
+            System.out.println(packet.getCheckNumber());
             finishWritingIntoBuffer();
             //creates a socket address
             InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
             //sends the data
             socket.send(writeBuffer, socketAddress);
+            System.out.println("---------------------------------------------------------");
         }
     }
 
