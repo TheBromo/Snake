@@ -58,10 +58,9 @@ public class Starter implements Discovery.Callback {
        //Removed until it works
         Scanner scanner = new Scanner(System.in);
         scanner.nextLine();
-        System.out.println("Local Address= "+InetAddress.getLocalHost());
-        inetAddresses.add(InetAddress.getLocalHost());
         String[] names = {"Bromo", "Spasst"};
         try {
+
             InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.1.3")}/* inetAddresses.toArray(new InetAddress[inetAddresses.size()])*/;
             new Lobby(names, addresses, size);
             new Gui(size, size);
