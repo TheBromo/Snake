@@ -69,6 +69,18 @@ public class Network {
 
 
     public void sendPacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads, PacketType packetType) throws IOException {
+        if (packetType == PacketType.COORDINATES) {
+            //removes all outdated Coordinates from being resent
+            List<Packet> packets = sentPackets;
+            for (Packet p : sentPackets) {
+                if (p.getType() == PacketType.COORDINATES) {
+                    packets.add(p);
+                }
+            }
+            sentPackets.removeAll(packets);
+        }
+
+
         System.out.println("---------------------------------------------------------");
         System.out.println("Sending:");
         //Loops through all players
@@ -89,8 +101,8 @@ public class Network {
                 writeBuffer.putInt(packetType.type());
                 writeBuffer.putInt(packet.getCheckNumber());
                 System.out.println("Network.sendPacket");
-                System.out.println("users = [" + users + "], heads = [" + heads + "], packetType = [" + packetType + "]");
-                System.out.println(packet.getCheckNumber());
+                System.out.println(" packetType = [" + packetType + "]");
+                System.out.println("CheckNumber:" + packet.getCheckNumber());
                 //packet content
                 if (packetType == PacketType.NAME) {
 
@@ -236,13 +248,13 @@ public class Network {
             System.out.println("resending: ");
             prepareWriteBuffer();
             writeBuffer.putInt(packet.getType().type());
-            System.out.println(packet.getType());
+            System.out.println("PacketType: " + packet.getType());
             writeBuffer.putInt(packet.getCheckNumber());
-            System.out.println(packet.getCheckNumber());
+            System.out.println("Checknumber: " + packet.getCheckNumber());
             if (packet.getType() == PacketType.COORDINATES) {
                 for (int i : packet.getInt()) {
                     writeBuffer.putInt(i);
-                    System.out.println(i);
+                    System.out.println("integers: " + i);
                 }
             } else if (packet.getType() == PacketType.NAME) {
                 writeBuffer.put(packet.getBytesArray());
@@ -269,7 +281,7 @@ public class Network {
             prepareWriteBuffer();
             writeBuffer.putInt(PacketType.RESPONSE.type());
             writeBuffer.putInt(packet.getCheckNumber());
-            System.out.println(packet.getCheckNumber());
+            System.out.println("CheckNumber: " + packet.getCheckNumber());
             finishWritingIntoBuffer();
             //creates a socket address
             InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
