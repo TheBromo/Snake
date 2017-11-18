@@ -71,7 +71,7 @@ public class Network {
     public void sendPacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads, PacketType packetType) throws IOException {
         if (packetType == PacketType.COORDINATES) {
             //removes all outdated Coordinates from being resent
-            List<Packet> packets = sentPackets;
+            List<Packet> packets = new ArrayList<>();
             for (Packet p : sentPackets) {
                 if (p.getType() == PacketType.COORDINATES) {
                     packets.add(p);
