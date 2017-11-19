@@ -119,8 +119,9 @@ public class Network {
 
                     //the new Coordinates of a user will be sent
                 /*PacketType,checkNumber,int x, int y, boolean,  */
-                    for (int i : packet.getInt()) {
-                        writeBuffer.putInt(i);
+                    int[] coordinates = packet.getInt();
+                    for (int i = 0; i < coordinates.length; i++) {
+                        writeBuffer.putInt(coordinates[i]);
                     }
 
 
@@ -168,7 +169,10 @@ public class Network {
 
                     //Turns the number into PacketType
                     for (PacketType pack : PacketType.values()) {
-                        if (pack.type() == typeNumber) packet.setType(pack);
+                        if (pack.type() == typeNumber) {
+                            packet.setType(pack);
+                            break;
+                        }
                     }
                     System.out.println("packet.type = " + packet.getType());
 
@@ -209,21 +213,16 @@ public class Network {
                         }
 
                     } else if (packet.getType() == PacketType.RESPONSE) {
-
-                        List<Packet> list = new ArrayList<>();
-
-                        //goes through all packets that are still awaiting to be confirmed that they have been sent
-                        for (Packet p : sentPackets) {
-
-                            //if the response packet belongs to a sent packet, it will be removed
+                        Iterator<Packet> itr = sentPackets.iterator();
+                        while (itr.hasNext()) {
+                            Packet p = itr.next();
                             if (p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver())) {
-                                list.add(p);
                                 System.out.println(p.getType());
                                 System.out.println(p.getCheckNumber());
                                 System.out.println(p.getReceiver());
+                                itr.remove();
                             }
                         }
-                        sentPackets.removeAll(list);
 
                     }
 
@@ -252,9 +251,10 @@ public class Network {
             writeBuffer.putInt(packet.getCheckNumber());
             System.out.println("Checknumber: " + packet.getCheckNumber());
             if (packet.getType() == PacketType.COORDINATES) {
-                for (int i : packet.getInt()) {
-                    writeBuffer.putInt(i);
-                    System.out.println("integers: " + i);
+                int[] coordinates = packet.getInt();
+                for (int i = 0; i < coordinates.length; i++) {
+                    writeBuffer.putInt(coordinates[i]);
+                    System.out.println("integers: " + coordinates[i]);
                 }
             } else if (packet.getType() == PacketType.NAME) {
                 writeBuffer.put(packet.getBytesArray());
