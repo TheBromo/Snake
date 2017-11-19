@@ -272,9 +272,8 @@ public class Network {
     public void answer() throws IOException {
 
         /* id, checksum*/
-
+        List<Packet> packetList = new ArrayList<>();
         for (Packet packet : receivedPackets) {
-
             System.out.println("---------------------------------------------------------");
             System.out.println("Answer: ");
             System.out.println(PacketType.RESPONSE);
@@ -287,8 +286,10 @@ public class Network {
             InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
             //sends the data
             socket.send(writeBuffer, socketAddress);
+            packetList.add(packet);
             System.out.println("---------------------------------------------------------");
         }
+        receivedPackets.removeAll(packetList);
     }
 
 
