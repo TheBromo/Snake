@@ -56,8 +56,6 @@ public class Starter implements Discovery.Callback {
         System.out.println("DONE");
 
        //Removed until it works
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
         String[] names = {"Spassst", "TheBromo"};
         try {
 

@@ -89,7 +89,7 @@ public class Network {
 
                 //Creates a new Packet that will be put into the byteBuffer to be sent
                 Packet packet = new Packet(address, checkNumber);
-                sentPackets.add(packet);
+
 
                 //Starts the process of writing to the packets
                 prepareWriteBuffer();
@@ -119,8 +119,17 @@ public class Network {
                     }
 
 
+                } else if (packetType == PacketType.DIRECTION) {
+                    if (heads.get(InetAddress.getLocalHost()).lastChar != heads.get(InetAddress.getLocalHost()).nextDir) {
+                        //if the direction changed the direction is going to be sent
+                        packet.setSingleChar(heads.get(InetAddress.getLocalHost()).nextDir);
+                        writeBuffer.putChar(packet.getSingleChar());
+                    } else {
+                        finishWritingIntoBuffer();
+                        return;
+                    }
                 }
-
+                sentPackets.add(packet);
                 //Stops the writing to the Buffer, the buffer is now ready to be sent
                 finishWritingIntoBuffer();
 
@@ -184,12 +193,8 @@ public class Network {
                         users.get(address).setName(str);
 
                     } else if (packet.getType() == PacketType.COORDINATES) {
-                        System.out.println("--------------------------------------------");
                         heads.get(address).setNewX(readBuffer.getInt());
-                        System.out.println(heads.get(address).getNewX());
                         heads.get(address).setNewY(readBuffer.getInt());
-                        System.out.println(heads.get(address).getNewY());
-                        System.out.println("--------------------------------------------");
                         if (readBuffer.getInt() == 1) {
                             users.get(address).setAlive(true);
                         } else {
@@ -199,19 +204,21 @@ public class Network {
                     } else if (packet.getType() == PacketType.RESPONSE) {
                         sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
+                    } else if (packet.getType() == PacketType.DIRECTION) {
+                        heads.get(sender).nextDir = readBuffer.getChar();
                     }
-                        //Response packets must not be confirmed to be sent
-                        if (packet.getType() != PacketType.RESPONSE) {
-                            //response packet
-                            prepareWriteBuffer();
-                            writeBuffer.putInt(PacketType.RESPONSE.type());
-                            writeBuffer.putInt(packet.getCheckNumber());
-                            finishWritingIntoBuffer();
-                            //creates a socket address
-                            InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
-                            //sends the data
-                            socket.send(writeBuffer, socketAddress);
-                        }
+                    //Response packets must not be confirmed to be sent
+                    if (packet.getType() != PacketType.RESPONSE) {
+                        //response packet
+                        prepareWriteBuffer();
+                        writeBuffer.putInt(PacketType.RESPONSE.type());
+                        writeBuffer.putInt(packet.getCheckNumber());
+                        finishWritingIntoBuffer();
+                        //creates a socket address
+                        InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+                        //sends the data
+                        socket.send(writeBuffer, socketAddress);
+                    }
 
                 }
                 keys.remove();
@@ -233,6 +240,8 @@ public class Network {
             } else if (packet.getType() == PacketType.NAME) {
                 writeBuffer.putInt(packet.getBytesArray().length);
                 writeBuffer.put(packet.getBytesArray());
+            } else if (packet.getType() == PacketType.DIRECTION) {
+                writeBuffer.putChar(packet.getSingleChar());
             }
             finishWritingIntoBuffer();
             //creates a socket address

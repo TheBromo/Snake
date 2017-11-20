@@ -3,7 +3,6 @@ package ch.snake;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -27,7 +26,9 @@ import java.util.Iterator;
 enum PacketType {
     NAME(1),
     COORDINATES(2),
-    RESPONSE(3);
+    DIRECTION(3),
+    RESPONSE(4);
+
 
     private final int type;
 
@@ -45,8 +46,10 @@ public class Packet {
     private InetAddress receiver;
     private PacketType type;
     private int checkNumber;
+    private char singleChar;
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
+    private ArrayList<Character> characters = new ArrayList<>();
 
     public Packet(InetAddress receiver, int checkNumber) {
         this.receiver = receiver;
@@ -55,6 +58,19 @@ public class Packet {
 
     public Packet(InetAddress receiver) {
         this.receiver = receiver;
+    }
+
+
+    public void addChar(char dir) {
+        characters.add(dir);
+    }
+
+    public char getSingleChar() {
+        return singleChar;
+    }
+
+    public void setSingleChar(char singleChar) {
+        this.singleChar = singleChar;
     }
 
     public void addBoolean(boolean bool) {
@@ -67,6 +83,12 @@ public class Packet {
             integers.add(b);
         }
     }
+
+    public ArrayList<Character> getCharacters() {
+        return characters;
+    }
+
+
 
     public void addString(String string) {
         /*  length, string */

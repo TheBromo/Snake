@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.net.*;
+import java.util.HashMap;
 import javax.swing.*;
 
 /**
@@ -35,17 +36,19 @@ class Draw extends JLabel implements KeyListener {
     private long last = 0, last2 = 0;
     private Network mNetwork;
     private Collision mCollision;
-    private int[] xArray;
-    private int[] yArray;
     private HUD mHUD;
+    private HashMap<InetAddress, Coordinates> heads;
+    private HashMap<InetAddress, Tail> users;
 
     public Draw() throws IOException {
+        heads = Lobby.getHeads();
+        users = Lobby.getUsers();
         generateHSB();
         mNetwork = new Network();
         mCollision = new Collision();
         mHUD = new HUD();
-        mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.NAME);
-        mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
+        mNetwork.sendPacket(users, heads, PacketType.NAME);
+        mNetwork.receivePacket(users, heads);
     }
 
     protected void paintComponent(Graphics g) {
@@ -65,26 +68,29 @@ class Draw extends JLabel implements KeyListener {
         if (now - last >= interval) {
 
             try {
-                if (Lobby.getUsers().get(InetAddress.getLocalHost()).isAlive()) {
-                    //The Movement in Steps of
-                    if (SnakeHead.nextDir == 'N') {
-                        int y = Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY();
-                        Lobby.getHeads().get(InetAddress.getLocalHost()).setNewY(y - snakeSize);
-                        SnakeHead.lastChar = 'N';
-                    } else if (SnakeHead.nextDir == 'E') {
-                        int x = Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX();
-                        Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x + snakeSize);
-                        SnakeHead.lastChar = 'E';
-                    } else if (SnakeHead.nextDir == 'S') {
-                        int y = Lobby.getHeads().get(InetAddress.getLocalHost()).getNewY();
-                        Lobby.getHeads().get(InetAddress.getLocalHost()).setNewY(y + snakeSize);
-                        SnakeHead.lastChar = 'S';
-                    } else if (SnakeHead.nextDir == 'W') {
-                        int x = Lobby.getHeads().get(InetAddress.getLocalHost()).getNewX();
-                        Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
-                        SnakeHead.lastChar = 'W';
+                mNetwork.sendPacket(users, heads, PacketType.DIRECTION);
+                for (InetAddress key : users.keySet()) {
+                    if (users.get(key).isAlive()) {
+                        //The Movement in Steps of
+                        if (heads.get(key).nextDir == 'N') {
+                            int y = heads.get(key).getNewY();
+                            heads.get(key).setNewY(y - snakeSize);
+                            heads.get(key).lastChar = 'N';
+                        } else if (heads.get(key).nextDir == 'E') {
+                            int x = heads.get(key).getNewX();
+                            heads.get(key).setNewX(x + snakeSize);
+                            heads.get(key).lastChar = 'E';
+                        } else if (heads.get(key).nextDir == 'S') {
+                            int y = heads.get(key).getNewY();
+                            heads.get(key).setNewY(y + snakeSize);
+                            heads.get(key).lastChar = 'S';
+                        } else if (heads.get(key).nextDir == 'W') {
+                            int x = heads.get(key).getNewX();
+                            heads.get(key).setNewX(x - snakeSize);
+                            heads.get(key).lastChar = 'W';
+                        }
+                        //TODO maybe not a good idea
                     }
-                    mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.COORDINATES);
 
                 }
             } catch (UnknownHostException e) {
@@ -96,47 +102,44 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-            mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
-            if (now - last2 >= interval / 10) {
-                mNetwork.resend();
-                last2 = now;
-            }
+            mNetwork.receivePacket(users, heads);
+            mNetwork.resend();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
         if (now - last >= interval) {
-            for (InetAddress key : Lobby.getUsers().keySet()) {
-                xArray = Lobby.getUsers().get(key).getXCor();
-                yArray = Lobby.getUsers().get(key).getYCor();
-                if (Lobby.getUsers().get(key).isAlive()) {
+            for (InetAddress key : users.keySet()) {
+                int[] xArray = users.get(key).getXCor();
+                int[] yArray = users.get(key).getYCor();
+                if (users.get(key).isAlive()) {
                     //moves the snake tail further
-                    Lobby.getUsers().get(key).refresh(Lobby.getHeads().get(key).getNewY(), Lobby.getHeads().get(key).getNewX());
+                    users.get(key).refresh(heads.get(key).getNewY(), heads.get(key).getNewX());
                     //Checks if snake collides with the dot
                     //TODO Does not work
-                    Lobby.getUsers().get(key).dotCheck(dot);
+                    users.get(key).dotCheck(dot);
                     //checks if the snake collides with the border
-                    mCollision.checkBorders(Lobby.getHeads().get(key), Lobby.getUsers().get(key), snakeSize, bounds);
+                    mCollision.checkBorders(heads.get(key), users.get(key), snakeSize, bounds);
 
 
                     //checks if the snake collides with other snakes
-                    for (InetAddress secondSnakeKey : Lobby.getUsers().keySet()) {
-                        mCollision.checkSnakes(Lobby.getUsers().get(key), Lobby.getUsers().get(secondSnakeKey));
+                    for (InetAddress secondSnakeKey : users.keySet()) {
+                        mCollision.checkSnakes(users.get(key), users.get(secondSnakeKey));
                     }
 
                 } else {
                     //keeps the snake in place when it is dead
-                    Lobby.getUsers().get(key).reset();
+                    users.get(key).reset();
                 }
             }
             last = now;
         }
 
 
-        for (InetAddress key : Lobby.getUsers().keySet()) {
+        for (InetAddress key : users.keySet()) {
             //draws all the snakes
-            Lobby.getUsers().get(key).draw(g, snakeSize);
+            users.get(key).draw(g, snakeSize);
         }
 
         //paints dot
@@ -155,25 +158,30 @@ class Draw extends JLabel implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        try {
+            if (e.getKeyCode() == KeyEvent.VK_W) {
 
-        if (e.getKeyCode() == KeyEvent.VK_W) {
-            if (SnakeHead.lastChar != 'S') {
-                SnakeHead.nextDir = 'N';
+                if (heads.get(InetAddress.getLocalHost()).lastChar != 'S') {
+                    heads.get(InetAddress.getLocalHost()).nextDir = 'N';
+                }
+
+            } else if (e.getKeyCode() == KeyEvent.VK_A) {
+                if (heads.get(InetAddress.getLocalHost()).lastChar != 'E') {
+                    heads.get(InetAddress.getLocalHost()).nextDir = 'W';
+                }
+            } else if (e.getKeyCode() == KeyEvent.VK_S) {
+                if (heads.get(InetAddress.getLocalHost()).lastChar != 'N') {
+                    heads.get(InetAddress.getLocalHost()).nextDir = 'S';
+                }
+            } else if (e.getKeyCode() == KeyEvent.VK_D) {
+                if (heads.get(InetAddress.getLocalHost()).lastChar != 'W') {
+                    heads.get(InetAddress.getLocalHost()).nextDir = 'E';
+                }
+            } else if (e.getKeyCode() == KeyEvent.VK_T) {
+                nameVisible = true;
             }
-        } else if (e.getKeyCode() == KeyEvent.VK_A) {
-            if (SnakeHead.lastChar != 'E') {
-                SnakeHead.nextDir = 'W';
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_S) {
-            if (SnakeHead.lastChar != 'N') {
-                SnakeHead.nextDir = 'S';
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_D) {
-            if (SnakeHead.lastChar != 'W') {
-                SnakeHead.nextDir = 'E';
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_T) {
-            nameVisible = true;
+        } catch (UnknownHostException e1) {
+            e1.printStackTrace();
         }
     }
 
@@ -186,7 +194,7 @@ class Draw extends JLabel implements KeyListener {
 
     private void generateHSB() {
         //generates player colors
-        for (int i = 0; i < Lobby.getUsers().size(); i++) {
+        for (int i = 0; i < users.size(); i++) {
             colors[i] = Color.getHSBColor((float) (0.1 * i), (float) (0.5), (float) (1.0));
         }
         setColors();
@@ -195,8 +203,8 @@ class Draw extends JLabel implements KeyListener {
     private void setColors() {
 
         int counter = 0;
-        for (InetAddress key : Lobby.getUsers().keySet()) {
-            Lobby.getUsers().get(key).setColor(colors[counter]);
+        for (InetAddress key : users.keySet()) {
+            users.get(key).setColor(colors[counter]);
             counter++;
         }
     }

@@ -20,6 +20,7 @@ package ch.snake;
 
 public class Coordinates {
     int newX, newY;
+    char nextDir = 'N', lastChar;
 
     public int getNewX() {
         return newX;
