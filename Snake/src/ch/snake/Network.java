@@ -36,11 +36,11 @@ import java.util.List;
 public class Network {
 
     ArrayList<Packet> sentPackets = new ArrayList<>();
-    ArrayList<Packet> receivedPackets = new ArrayList<>();
     ByteBuffer readBuffer, writeBuffer;
     private DatagramChannel socket;
     private Selector selector;
     private int checkNumber;
+    private long last = 0;
 
 
     public Network() throws IOException {
@@ -136,7 +136,8 @@ public class Network {
         }
     }
 
-    public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
+    public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads,int interval) throws IOException {
+        long now = System.currentTimeMillis();
         if (selector.selectNow() > 0) {
             Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
             while (keys.hasNext()) {
@@ -202,21 +203,21 @@ public class Network {
                         sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
                     }
+                    if (last - now >= interval/10) {
+                        //Response packets must not be confirmed to be sent
+                        if (packet.getType() != PacketType.RESPONSE) {
+                            //response packet
+                            prepareWriteBuffer();
+                            writeBuffer.putInt(PacketType.RESPONSE.type());
+                            writeBuffer.putInt(packet.getCheckNumber());
+                            finishWritingIntoBuffer();
+                            //creates a socket address
+                            InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+                            //sends the data
+                            socket.send(writeBuffer, socketAddress);
+                        }
 
-                    //Response packets must not be confirmed to be sent
-                    if (packet.getType() != PacketType.RESPONSE) {
-                        //response packet
-                        prepareWriteBuffer();
-                        writeBuffer.putInt(PacketType.RESPONSE.type());
-                        writeBuffer.putInt(packet.getCheckNumber());
-                        finishWritingIntoBuffer();
-                        //creates a socket address
-                        InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
-                        //sends the data
-                        socket.send(writeBuffer, socketAddress);
                     }
-
-
                 }
                 keys.remove();
             }
