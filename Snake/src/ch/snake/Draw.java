@@ -1,12 +1,13 @@
 package ch.snake;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
-import javax.swing.*;
 
 /**
  * SwingSnake
@@ -28,10 +29,10 @@ import javax.swing.*;
 
 class Draw extends JLabel implements KeyListener {
 
+    static int snakeSize = Lobby.getSnakeSize();
     private static boolean nameVisible;
     private static Color[] colors = new Color[100];
     private Dot dot = new Dot();
-    static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
     private long last = 0, last2 = 0;
     private Network mNetwork;
@@ -92,6 +93,7 @@ class Draw extends JLabel implements KeyListener {
                         //TODO maybe not a good idea
                     }
 
+
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -103,7 +105,9 @@ class Draw extends JLabel implements KeyListener {
 
         try {
             mNetwork.receivePacket(users, heads);
-            mNetwork.resend();
+            if (now - last2 >= 10) {
+                mNetwork.resend();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -122,6 +122,8 @@ public class Network {
 
                 } else if (packetType == PacketType.DIRECTION) {
                     if (heads.get(InetAddress.getLocalHost()).lastChar != heads.get(InetAddress.getLocalHost()).nextDir) {
+                        System.out.println("Last char= " + heads.get(InetAddress.getLocalHost()).lastChar);
+                        System.out.println("NextDir= " + heads.get(InetAddress.getLocalHost()).nextDir);
                         //if the direction changed the direction is going to be sent
                         packet.setSingleChar(heads.get(InetAddress.getLocalHost()).nextDir);
                         writeBuffer.putChar(packet.getSingleChar());
@@ -208,7 +210,7 @@ public class Network {
                     } else if (packet.getType() == PacketType.DIRECTION) {
                         char nextDir = readBuffer.getChar();
 
-                        heads.get(sender).nextDir = nextDir;
+                        heads.get(((InetSocketAddress) sender).getAddress()).nextDir = nextDir;
                     }
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {
