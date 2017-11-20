@@ -89,6 +89,7 @@ public class Network {
 
                 //Creates a new Packet that will be put into the byteBuffer to be sent
                 Packet packet = new Packet(address, checkNumber);
+                packet.setType(packetType);
 
 
                 //Starts the process of writing to the packets
