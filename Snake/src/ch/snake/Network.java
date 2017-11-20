@@ -102,7 +102,7 @@ public class Network {
                 if (packetType == PacketType.NAME) {
 
                     //The name of a user will be sent
-                /*PacketType, checkNumber , length, string,*/
+                    /*PacketType, checkNumber , length, string,*/
                     packet.addString(users.get(InetAddress.getLocalHost()).getName());
                     writeBuffer.putInt(packet.getBytesArray().length);
                     writeBuffer.put(packet.getBytesArray());
@@ -113,7 +113,7 @@ public class Network {
                     packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getLocalHost()).isAlive());
 
                     //the new Coordinates of a user will be sent
-                /*PacketType,checkNumber,int x, int y, boolean,  */
+                    /*PacketType,checkNumber,int x, int y, boolean,  */
                     int[] coordinates = packet.getInt();
                     for (int i = 0; i < coordinates.length; i++) {
                         writeBuffer.putInt(coordinates[i]);
@@ -175,7 +175,7 @@ public class Network {
 
                         //gets the strings length
                         int length = readBuffer.getInt();
-
+                        System.out.println(length);
                         //gets the string as bytes
                         byte[] data = new byte[length];
                         readBuffer.get(data);
@@ -195,14 +195,7 @@ public class Network {
                         }
 
                     } else if (packet.getType() == PacketType.RESPONSE) {
-                        Iterator<Packet> itr = sentPackets.iterator();
-                        while (itr.hasNext()) {
-                            Packet p = itr.next();
-                            if (p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver())) {
-
-                                itr.remove();
-                            }
-                        }
+                        sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
                     }
 
@@ -238,6 +231,7 @@ public class Network {
                     writeBuffer.putInt(coordinates[i]);
                 }
             } else if (packet.getType() == PacketType.NAME) {
+                writeBuffer.putInt(packet.getBytesArray().length);
                 writeBuffer.put(packet.getBytesArray());
             }
             finishWritingIntoBuffer();

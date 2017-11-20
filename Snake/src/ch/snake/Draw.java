@@ -45,6 +45,7 @@ class Draw extends JLabel implements KeyListener {
         mCollision = new Collision();
         mHUD = new HUD();
         mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.NAME);
+        mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
     }
 
     protected void paintComponent(Graphics g) {
