@@ -206,7 +206,9 @@ public class Network {
                         sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
                     } else if (packet.getType() == PacketType.DIRECTION) {
-                        heads.get(sender).nextDir = readBuffer.getChar();
+                        char nextDir = readBuffer.getChar();
+
+                        heads.get(sender).nextDir = nextDir;
                     }
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {
