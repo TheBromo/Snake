@@ -83,7 +83,6 @@ class Draw extends JLabel implements KeyListener {
                         Lobby.getHeads().get(InetAddress.getLocalHost()).setNewX(x - snakeSize);
                         SnakeHead.lastChar = 'W';
                     }
-                    mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
                     mNetwork.sendPacket(Lobby.getUsers(), Lobby.getHeads(), PacketType.COORDINATES);
 
                 }
@@ -96,8 +95,6 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-            mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
-            mNetwork.answer();
             mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
             mNetwork.resend();
         } catch (IOException e) {
