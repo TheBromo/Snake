@@ -186,8 +186,12 @@ public class Network {
                         users.get(address).setName(str);
 
                     } else if (packet.getType() == PacketType.COORDINATES) {
+                        System.out.println("--------------------------------------------");
                         heads.get(address).setNewX(readBuffer.getInt());
+                        System.out.println(heads.get(address).getNewX());
                         heads.get(address).setNewY(readBuffer.getInt());
+                        System.out.println(heads.get(address).getNewY());
+                        System.out.println("--------------------------------------------");
                         if (readBuffer.getInt() == 1) {
                             users.get(address).setAlive(true);
                         } else {
