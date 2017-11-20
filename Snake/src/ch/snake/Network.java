@@ -40,7 +40,6 @@ public class Network {
     private DatagramChannel socket;
     private Selector selector;
     private int checkNumber;
-    private long last = 0;
 
 
     public Network() throws IOException {
@@ -136,8 +135,7 @@ public class Network {
         }
     }
 
-    public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads,int interval) throws IOException {
-        long now = System.currentTimeMillis();
+    public void receivePacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
         if (selector.selectNow() > 0) {
             Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
             while (keys.hasNext()) {
@@ -176,7 +174,6 @@ public class Network {
 
                         //gets the strings length
                         int length = readBuffer.getInt();
-                        System.out.println(length);
                         //gets the string as bytes
                         byte[] data = new byte[length];
                         readBuffer.get(data);
@@ -203,7 +200,6 @@ public class Network {
                         sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
                     }
-                    if (last - now >= interval/10) {
                         //Response packets must not be confirmed to be sent
                         if (packet.getType() != PacketType.RESPONSE) {
                             //response packet
@@ -217,7 +213,6 @@ public class Network {
                             socket.send(writeBuffer, socketAddress);
                         }
 
-                    }
                 }
                 keys.remove();
             }

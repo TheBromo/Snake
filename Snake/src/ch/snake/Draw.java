@@ -32,7 +32,7 @@ class Draw extends JLabel implements KeyListener {
     private Dot dot = new Dot();
     static int snakeSize = Lobby.getSnakeSize();
     private int interval = (int) (100 / (20 / snakeSize));
-    private long last = 0;
+    private long last = 0, last2 = 0;
     private Network mNetwork;
     private Collision mCollision;
     private int[] xArray;
@@ -97,7 +97,10 @@ class Draw extends JLabel implements KeyListener {
 
         try {
             mNetwork.receivePacket(Lobby.getUsers(), Lobby.getHeads());
-            mNetwork.resend();
+            if (now - last2 >= interval / 10) {
+                mNetwork.resend();
+                last2 = now;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
