@@ -110,6 +110,9 @@ public class Network {
             for (Packet p : sentPackets) {
                 if (p.getType() == PacketType.COORDINATES) {
                     packets.add(p);
+
+                }else {
+                    System.out.println("Packet lost: Type:"+p.getType()+" CheckNumber:"+p.getCheckNumber());
                 }
             }
             sentPackets.removeAll(packets);
