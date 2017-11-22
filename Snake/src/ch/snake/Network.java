@@ -40,7 +40,7 @@ public class Network {
     private int checkNumber;
     private long startTime = 0;
     boolean startTimeReceived = false;
-
+    private long last = 0;
 
     public Network() throws IOException {
         checkNumber = 0;
@@ -81,7 +81,11 @@ public class Network {
             while (true) {
 
                 if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
-                    sendPacket(users, heads, PacketType.RESEND);
+                    long now = System.currentTimeMillis();
+                    if (now - last == 20) {
+                        sendPacket(users, heads, PacketType.RESEND);
+                        last=now;
+                    }
                     if (startTime <= System.currentTimeMillis()) {
                         break;
                     }
@@ -266,6 +270,7 @@ public class Network {
                     } else if (packet.getType() == PacketType.CONNECTION) {
 
                         startTime = readBuffer.getLong();
+                        System.out.println(startTime);
                         startTimeReceived = true;
                     }
                     //Response packets must not be confirmed to be sent
