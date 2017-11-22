@@ -1,5 +1,7 @@
 package ch.snake;
 
+import sun.nio.cs.US_ASCII;
+
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,13 +32,10 @@ class Lobby {
     private static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
 
     public Lobby( InetAddress[] ipAdresses, int size) {
-        seed = generateSeed(ipAdresses);
-
         for (int i = 0; i < ipAdresses.length; i++) {
             heads.put(ipAdresses[i], new Coordinates());
+            users.put(ipAdresses[i],new Tail(""));
         }
-        positionSetter(size);
-
         int ySteps = 0;
         for (InetAddress key : users.keySet()) {
             for (int index = 1; index < users.get(key).getLength(); index++) {
@@ -44,15 +43,20 @@ class Lobby {
                 ySteps += snakeSize;
             }
         }
+        positionSetter(size);
+
+        seed = generateSeed();
+
+
+
 
     }
 
-    private long generateSeed(InetAddress[] names) {
+    private long generateSeed() {
 
-        Arrays.sort(names);
         String s = "";
-        for (int i = 0; i < names.length; i++) {
-            s = s.concat(names[i].getCanonicalHostName());
+        for (InetAddress key:users.keySet()) {
+            s = s.concat(key.getCanonicalHostName());
         }
         long hash = 0;
         for (char c : s.toCharArray()) {

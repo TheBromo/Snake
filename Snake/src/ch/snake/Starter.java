@@ -48,13 +48,15 @@ public class Starter implements Discovery.Callback {
             Discovery.update();
 
             long now = System.currentTimeMillis();
-            if (now - started >= 10000) {
+            if (now - started >= 1000) {
                 break;
             }
         }
         Discovery.close();
         System.out.println("DONE");
         //Removed after new nettools update
+        System.out.println(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+        inetAddresses.remove(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
         inetAddresses.add(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
         String[] names = {"Spassst", "TheBromo"};
         try {
@@ -83,6 +85,7 @@ public class Starter implements Discovery.Callback {
         try {
             InetAddress addr = InetAddress.getByAddress(socketAddress.getAddress());
             inetAddresses.add(addr);
+            System.out.println(addr);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
