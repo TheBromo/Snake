@@ -52,7 +52,7 @@ class Lobby {
         Arrays.sort(names);
         String s = "";
         for (int i = 0; i < names.length; i++) {
-            s = s.concat(names[i].toString());
+            s = s.concat(names[i].getCanonicalHostName());
         }
         long hash = 0;
         for (char c : s.toCharArray()) {
