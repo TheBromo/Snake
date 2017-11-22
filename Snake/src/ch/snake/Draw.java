@@ -72,7 +72,7 @@ class Draw extends JLabel implements KeyListener {
         if (now - last >= interval) {
 
             try {
-                mNetwork.sendPacket(users, heads, PacketType.ADVANCEDDIR);
+                mNetwork.sendPacket(users, heads, PacketType.DIRECTION);
                 for (InetAddress key : users.keySet()) {
                     if (users.get(key).isAlive()) {
                         //The Movement in Steps of
@@ -95,6 +95,7 @@ class Draw extends JLabel implements KeyListener {
                         }
                     }
                 }
+                mNetwork.sendPacket(users, heads, PacketType.COORDINATES);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (IOException e) {

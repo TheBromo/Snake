@@ -298,9 +298,14 @@ public class Network {
                         System.out.println(startTime);
                         startTimeReceived = true;
                     } else if (packet.getType() == PacketType.ADVANCEDDIR) {
-                        heads.get(address).setNewX(readBuffer.getInt());
-                        heads.get(address).setNewY(readBuffer.getInt());
-
+                        int x = readBuffer.getInt();
+                        int y = readBuffer.getInt();
+                        if (x != 0) {
+                            heads.get(address).setNewX(x);
+                        }
+                        if (y != 0) {
+                            heads.get(address).setNewY(y);
+                        }
                         if (readBuffer.getInt() == 1) {
                             users.get(address).setAlive(true);
                         } else {
