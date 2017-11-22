@@ -382,5 +382,12 @@ public class Network {
 
     }
 
+    public void test(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
+        if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir) {
+            sendPacket(users, heads, PacketType.DIRECTION);
+            sendPacket(users, heads, PacketType.COORDINATES);
+        }
+    }
+
 
 }
