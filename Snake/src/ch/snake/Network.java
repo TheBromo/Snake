@@ -5,15 +5,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * SwingSnake
@@ -40,6 +38,8 @@ public class Network {
     private DatagramChannel socket;
     private Selector selector;
     private int checkNumber;
+    private long startTime = 0;
+    boolean startTimeReceived = false;
 
 
     public Network() throws IOException {
@@ -67,8 +67,40 @@ public class Network {
     }
 
 
+    public void waitForConnection(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
+
+        Iterator<InetAddress> addressIterator = users.keySet().iterator();
+
+        if (addressIterator.hasNext()) {
+
+            InetAddress address = addressIterator.next();
+            if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
+                sendPacket(users, heads, PacketType.CONNECTION);
+            }
+
+            while (true) {
+
+                if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
+                    sendPacket(users, heads, PacketType.RESEND);
+                    if (startTime <= System.currentTimeMillis()) {
+                        break;
+                    }
+
+                } else {
+
+                    receivePacket(users, heads);
+                    if (startTimeReceived && startTime <= System.currentTimeMillis()) {
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+
     public void sendPacket(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads, PacketType packetType) throws IOException {
         if (packetType == PacketType.COORDINATES) {
+
             //removes all outdated Coordinates from being resent
             List<Packet> packets = new ArrayList<>();
             for (Packet p : sentPackets) {
@@ -122,16 +154,33 @@ public class Network {
 
                 } else if (packetType == PacketType.DIRECTION) {
                     if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir) {
+
                         System.out.println("Last char= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar);
                         System.out.println("NextDir= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
+
                         //if the direction changed the direction is going to be sent
                         packet.setSingleChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
                         writeBuffer.putChar(packet.getSingleChar());
+
                     } else {
+
                         finishWritingIntoBuffer();
                         return;
                     }
+                } else if (packet.getType() == PacketType.RESEND) {
+
+                    resend();
+                    return;
+
+                } else if (packet.getType() == PacketType.CONNECTION) {
+
+                    packet.addLong(System.currentTimeMillis() + 20000);
+                    for (Long l : packet.getLongs()) {
+                        startTime = l;
+                        writeBuffer.putLong(l);
+                    }
                 }
+
                 sentPackets.add(packet);
                 //Stops the writing to the Buffer, the buffer is now ready to be sent
                 finishWritingIntoBuffer();
@@ -155,6 +204,7 @@ public class Network {
 
                 //checks if any packets were received
                 if (key.isReadable()) {
+
                     //prepares buffer for reading
                     readBuffer.position(0).limit(readBuffer.capacity());
                     //gets the address of the sender
@@ -196,8 +246,10 @@ public class Network {
                         users.get(address).setName(str);
 
                     } else if (packet.getType() == PacketType.COORDINATES) {
+
                         heads.get(address).setNewX(readBuffer.getInt());
                         heads.get(address).setNewY(readBuffer.getInt());
+
                         if (readBuffer.getInt() == 1) {
                             users.get(address).setAlive(true);
                         } else {
@@ -208,22 +260,27 @@ public class Network {
                         sentPackets.removeIf(p -> p.getCheckNumber() == packet.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
 
                     } else if (packet.getType() == PacketType.DIRECTION) {
-                        char nextDir = readBuffer.getChar();
 
+                        char nextDir = readBuffer.getChar();
                         heads.get(((InetSocketAddress) sender).getAddress()).nextDir = nextDir;
-                    } else if (packet.getType() == PacketType.RESEND) {
-                        resend();
-                        return;
+
+                    } else if (packet.getType() == PacketType.CONNECTION) {
+
+                        startTime = readBuffer.getLong();
+                        startTimeReceived = true;
                     }
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {
+
                         //response packet
                         prepareWriteBuffer();
                         writeBuffer.putInt(PacketType.RESPONSE.type());
                         writeBuffer.putInt(packet.getCheckNumber());
                         finishWritingIntoBuffer();
+
                         //creates a socket address
                         InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+
                         //sends the data
                         socket.send(writeBuffer, socketAddress);
                     }
@@ -240,20 +297,26 @@ public class Network {
             prepareWriteBuffer();
             writeBuffer.putInt(packet.getType().type());
             writeBuffer.putInt(packet.getCheckNumber());
+
             if (packet.getType() == PacketType.COORDINATES) {
+
                 int[] coordinates = packet.getInt();
                 for (int i = 0; i < coordinates.length; i++) {
                     writeBuffer.putInt(coordinates[i]);
                 }
+
             } else if (packet.getType() == PacketType.NAME) {
                 writeBuffer.putInt(packet.getBytesArray().length);
                 writeBuffer.put(packet.getBytesArray());
+
             } else if (packet.getType() == PacketType.DIRECTION) {
                 writeBuffer.putChar(packet.getSingleChar());
             }
             finishWritingIntoBuffer();
+
             //creates a socket address
             InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+
             //sends the data
             socket.send(writeBuffer, socketAddress);
         }

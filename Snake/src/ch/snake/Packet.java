@@ -1,6 +1,7 @@
 package ch.snake;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +28,9 @@ enum PacketType {
     NAME(1),
     COORDINATES(2),
     DIRECTION(3),
-    RESPONSE(4),RESEND(5);
+    RESPONSE(4),
+    RESEND(5),
+    CONNECTION(6);
 
 
     private final int type;
@@ -47,6 +50,7 @@ public class Packet {
     private PacketType type;
     private int checkNumber;
     private char singleChar;
+    private ArrayList<Long> longs= new ArrayList<>();
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
     private ArrayList<Character> characters = new ArrayList<>();
@@ -89,6 +93,35 @@ public class Packet {
     }
 
 
+    public void addLong(long number){
+        longs.add(number);
+    }
+
+    public ArrayList<Long> getLongs() {
+        return longs;
+    }
+
+    public void addLongAsByte(long number) {
+        byte[] data = longToBytes(number);
+        for (int index = 0; index < data.length; index++) {
+            bytes.add(data[index]);
+        }
+
+
+    }
+
+    public byte[] longToBytes(long x) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.putLong(x);
+        return buffer.array();
+    }
+
+    public long bytesToLong(byte[] bytes) {
+        ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+        buffer.put(bytes);
+        buffer.flip();//need flip
+        return buffer.getLong();
+    }
 
     public void addString(String string) {
         /*  length, string */

@@ -42,14 +42,19 @@ class Draw extends JLabel implements KeyListener {
     private HashMap<InetAddress, Tail> users;
 
     public Draw() throws IOException {
+
         heads = Lobby.getHeads();
         users = Lobby.getUsers();
+
         generateHSB();
+
         mNetwork = new Network();
         mCollision = new Collision();
         mHUD = new HUD();
+
         mNetwork.sendPacket(users, heads, PacketType.NAME);
         mNetwork.receivePacket(users, heads);
+        mNetwork.waitForConnection(users,heads);
     }
 
     protected void paintComponent(Graphics g) {
@@ -57,13 +62,11 @@ class Draw extends JLabel implements KeyListener {
         super.paintComponent(g);
         // is used for the size adjustment to the Screen
         Rectangle bounds = getBounds();
-
         Graphics2D g2d = (Graphics2D) g;
-
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         //records the time to update snake Position in regular interval
         long now = System.currentTimeMillis();
-
 
         //every 100ms it readjusts the tail and checks if the dot gets eaten
         if (now - last >= interval) {
@@ -90,10 +93,7 @@ class Draw extends JLabel implements KeyListener {
                             heads.get(key).setNewX(x - snakeSize);
                             heads.get(key).lastChar = 'W';
                         }
-                        //TODO maybe not a good idea
                     }
-
-
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -104,7 +104,6 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-
             mNetwork.receivePacket(users, heads);
             if (now - last2 >= 10) {
                 mNetwork.sendPacket(users,heads,PacketType.RESEND);
@@ -118,15 +117,18 @@ class Draw extends JLabel implements KeyListener {
             for (InetAddress key : users.keySet()) {
                 int[] xArray = users.get(key).getXCor();
                 int[] yArray = users.get(key).getYCor();
+
                 if (users.get(key).isAlive()) {
+
                     //moves the snake tail further
                     users.get(key).refresh(heads.get(key).getNewY(), heads.get(key).getNewX());
+
                     //Checks if snake collides with the dot
                     //TODO Does not work
                     users.get(key).dotCheck(dot);
+
                     //checks if the snake collides with the border
                     mCollision.checkBorders(heads.get(key), users.get(key), snakeSize, bounds);
-
 
                     //checks if the snake collides with other snakes
                     for (InetAddress secondSnakeKey : users.keySet()) {
@@ -134,6 +136,7 @@ class Draw extends JLabel implements KeyListener {
                     }
 
                 } else {
+
                     //keeps the snake in place when it is dead
                     users.get(key).reset();
                 }
@@ -143,6 +146,7 @@ class Draw extends JLabel implements KeyListener {
 
 
         for (InetAddress key : users.keySet()) {
+
             //draws all the snakes
             users.get(key).draw(g, snakeSize);
         }
