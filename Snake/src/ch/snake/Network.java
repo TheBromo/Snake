@@ -174,11 +174,10 @@ public class Network {
 
                 } else if (packet.getType() == PacketType.CONNECTION) {
 
-                    packet.addLong(System.currentTimeMillis() + 20000);
-                    for (Long l : packet.getLongs()) {
-                        startTime = l;
-                        writeBuffer.putLong(l);
-                    }
+                    packet.setTime(System.currentTimeMillis() + 20000);
+                    startTime = packet.getTime();
+                    writeBuffer.putLong(packet.getTime());
+
                 }
 
                 sentPackets.add(packet);

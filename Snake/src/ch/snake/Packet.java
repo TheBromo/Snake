@@ -50,6 +50,7 @@ public class Packet {
     private PacketType type;
     private int checkNumber;
     private char singleChar;
+    private long time;
     private ArrayList<Long> longs= new ArrayList<>();
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
@@ -86,6 +87,14 @@ public class Packet {
             b = 0;
             integers.add(b);
         }
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public ArrayList<Character> getCharacters() {
