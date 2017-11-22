@@ -3,6 +3,7 @@ package ch.snake;
 import sun.nio.cs.US_ASCII;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,11 +32,12 @@ class Lobby {
     private static HashMap<InetAddress, Tail> users = new HashMap<>();
     private static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
 
-    public Lobby( InetAddress[] ipAdresses, int size) {
+    public Lobby(InetAddress[] ipAdresses, int size) throws UnknownHostException {
         for (int i = 0; i < ipAdresses.length; i++) {
             heads.put(ipAdresses[i], new Coordinates());
-            users.put(ipAdresses[i],new Tail(""));
+            users.put(ipAdresses[i], new Tail("Test"));
         }
+        users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setName("TheBromo");
         int ySteps = 0;
         for (InetAddress key : users.keySet()) {
             for (int index = 1; index < users.get(key).getLength(); index++) {
