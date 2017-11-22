@@ -24,7 +24,7 @@ public class Tail {
 
     private int[] xArray = new int[100];
     private int[] yArray = new int[100];
-    private String name;
+    private String name="";
     private int score = 0;
     private int length = 6;
     private boolean alive=true;

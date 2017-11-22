@@ -15,34 +15,34 @@ import java.util.Scanner;
 /**
  * @author Manuel Strenge https://github.com/TheBromo
  * @version v0.8
- *
+ * <p>
  * SwingSnake
  * Copyright (C) 2017  Manuel Strenge
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 public class Starter implements Discovery.Callback {
 
-    ArrayList<InetAddress> inetAddresses=new ArrayList<>();
+    ArrayList<InetAddress> inetAddresses = new ArrayList<>();
 
     public Starter(int size) throws UnknownHostException {
         WinNative.loadLibrary(new File("lib/native"));
 
-        Discovery.initailize((short)12345);
+        Discovery.initailize((short) 12345);
         Discovery.setCallback(this);
-        Discovery.search((short)12345, true);
+        Discovery.search((short) 12345, true);
         long started = System.currentTimeMillis();
         while (true) {
             Discovery.update();
@@ -54,13 +54,13 @@ public class Starter implements Discovery.Callback {
         }
         Discovery.close();
         System.out.println("DONE");
-
-       //Removed until it works
+        inetAddresses.add(InetAddress.getLocalHost());
+        //Removed until it works
         String[] names = {"Spassst", "TheBromo"};
         try {
 
-            InetAddress[] addresses = {InetAddress.getLocalHost(), InetAddress.getByName("192.168.1.5")}/* inetAddresses.toArray(new InetAddress[inetAddresses.size()])*/;
-            new Lobby(names, addresses, size);
+            InetAddress[] addresses = inetAddresses.toArray(new InetAddress[inetAddresses.size()]);
+            new Lobby( addresses, size);
             new Gui(size, size);
         } catch (UnknownHostException e) {
             e.printStackTrace();

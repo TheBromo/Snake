@@ -29,12 +29,10 @@ class Lobby {
     private static HashMap<InetAddress, Tail> users = new HashMap<>();
     private static HashMap<InetAddress, Coordinates> heads = new HashMap<>();
 
-    public Lobby(String[] names, InetAddress[] ipAdresses, int size) {
-        seed = generateSeed(names);
-        for (int i = 0; i < names.length; i++) {
-            users.put(ipAdresses[i], new Tail(names[i]));
-        }
-        for (int i = 0; i < names.length; i++) {
+    public Lobby( InetAddress[] ipAdresses, int size) {
+        seed = generateSeed(ipAdresses);
+
+        for (int i = 0; i < ipAdresses.length; i++) {
             heads.put(ipAdresses[i], new Coordinates());
         }
         positionSetter(size);
@@ -49,12 +47,12 @@ class Lobby {
 
     }
 
-    private long generateSeed(String[] names) {
+    private long generateSeed(InetAddress[] names) {
 
         Arrays.sort(names);
         String s = "";
         for (int i = 0; i < names.length; i++) {
-            s = s.concat(names[i]);
+            s = s.concat(names[i].toString());
         }
         long hash = 0;
         for (char c : s.toCharArray()) {
