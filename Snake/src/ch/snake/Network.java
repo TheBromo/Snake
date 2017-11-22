@@ -310,7 +310,10 @@ public class Network {
 
             } else if (packet.getType() == PacketType.DIRECTION) {
                 writeBuffer.putChar(packet.getSingleChar());
+            } else if (packet.getType() == PacketType.CONNECTION) {
+                writeBuffer.putLong(packet.getTime());
             }
+
             finishWritingIntoBuffer();
 
             //creates a socket address
