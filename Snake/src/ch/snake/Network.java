@@ -1,8 +1,6 @@
 package ch.snake;
 
 
-import com.sun.org.apache.xpath.internal.SourceTree;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -203,6 +201,8 @@ public class Network {
                         packet.setSingleChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
                         writeBuffer.putChar(packet.getSingleChar());
 
+                    } else {
+                        return;
                     }
                 }
 
@@ -359,8 +359,8 @@ public class Network {
                 writeBuffer.putLong(packet.getTime());
             } else if (packet.getType() == PacketType.ADVANCEDDIR) {
                 int[] coordinates = packet.getInt();
-                for (int i = 0; i < coordinates.length; i++) {
-                    writeBuffer.putInt(coordinates[i]);
+                for (int coordinate : coordinates) {
+                    writeBuffer.putInt(coordinate);
                 }
                 writeBuffer.putChar(packet.getSingleChar());
 
