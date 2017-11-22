@@ -30,7 +30,8 @@ enum PacketType {
     DIRECTION(3),
     RESPONSE(4),
     RESEND(5),
-    CONNECTION(6);
+    CONNECTION(6),
+    ADVANCEDDIR(7);
 
 
     private final int type;

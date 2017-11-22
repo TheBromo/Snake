@@ -1,17 +1,22 @@
 package ch.snake;
 
 
+import com.sun.org.apache.xpath.internal.SourceTree;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * SwingSnake
@@ -35,11 +40,11 @@ public class Network {
 
     ArrayList<Packet> sentPackets = new ArrayList<>();
     ByteBuffer readBuffer, writeBuffer;
+    boolean startTimeReceived = false;
     private DatagramChannel socket;
     private Selector selector;
     private int checkNumber;
     private long startTime = 0;
-    boolean startTimeReceived = false;
     private long last = 0;
 
     public Network() throws IOException {
@@ -84,7 +89,7 @@ public class Network {
                     long now = System.currentTimeMillis();
                     if (now - last == 20) {
                         sendPacket(users, heads, PacketType.RESEND);
-                        last=now;
+                        last = now;
                     }
                     if (startTime <= System.currentTimeMillis()) {
                         break;
@@ -111,8 +116,8 @@ public class Network {
                 if (p.getType() == PacketType.COORDINATES) {
                     packets.add(p);
 
-                }else {
-                    System.out.println("Packet lost: Type:"+p.getType()+" CheckNumber:"+p.getCheckNumber());
+                } else {
+                    System.out.println("Packet lost: Type:" + p.getType() + " CheckNumber:" + p.getCheckNumber());
                 }
             }
             sentPackets.removeAll(packets);
@@ -154,9 +159,7 @@ public class Network {
                     //the new Coordinates of a user will be sent
                     /*PacketType,checkNumber,int x, int y, boolean,  */
                     int[] coordinates = packet.getInt();
-                    for (int i = 0; i < coordinates.length; i++) {
-                        writeBuffer.putInt(coordinates[i]);
-                    }
+                    IntStream.range(0, coordinates.length).forEach(i -> writeBuffer.putInt(coordinates[i]));
 
 
                 } else if (packetType == PacketType.DIRECTION) {
@@ -185,7 +188,24 @@ public class Network {
                     startTime = packet.getTime();
                     writeBuffer.putLong(packet.getTime());
 
+                } else if (packet.getType() == PacketType.ADVANCEDDIR) {
+                    if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir) {
+
+                        Coordinates you = heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+                        packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).isAlive());
+
+                        //the new Coordinates of a user will be sent
+                       /*PacketType,checkNumber,int x, int y, char direction  */
+                        int[] coordinates = packet.getInt();
+                        IntStream.range(0, coordinates.length).forEach(i -> writeBuffer.putInt(coordinates[i]));
+
+                        //if the direction changed the direction is going to be sent
+                        packet.setSingleChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
+                        writeBuffer.putChar(packet.getSingleChar());
+
+                    }
                 }
+
 
                 sentPackets.add(packet);
                 //Stops the writing to the Buffer, the buffer is now ready to be sent
@@ -268,6 +288,8 @@ public class Network {
                     } else if (packet.getType() == PacketType.DIRECTION) {
 
                         char nextDir = readBuffer.getChar();
+                        System.out.println();
+                        System.out.println("New Direction: " + nextDir);
                         heads.get(((InetSocketAddress) sender).getAddress()).nextDir = nextDir;
 
                     } else if (packet.getType() == PacketType.CONNECTION) {
@@ -275,7 +297,22 @@ public class Network {
                         startTime = readBuffer.getLong();
                         System.out.println(startTime);
                         startTimeReceived = true;
+                    } else if (packet.getType() == PacketType.ADVANCEDDIR) {
+                        heads.get(address).setNewX(readBuffer.getInt());
+                        heads.get(address).setNewY(readBuffer.getInt());
+
+                        if (readBuffer.getInt() == 1) {
+                            users.get(address).setAlive(true);
+                        } else {
+                            users.get(address).setAlive(false);
+                        }
+
+                        char nextDir = readBuffer.getChar();
+                        heads.get(((InetSocketAddress) sender).getAddress()).nextDir = nextDir;
+
                     }
+
+
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {
 
@@ -320,6 +357,13 @@ public class Network {
                 writeBuffer.putChar(packet.getSingleChar());
             } else if (packet.getType() == PacketType.CONNECTION) {
                 writeBuffer.putLong(packet.getTime());
+            } else if (packet.getType() == PacketType.ADVANCEDDIR) {
+                int[] coordinates = packet.getInt();
+                for (int i = 0; i < coordinates.length; i++) {
+                    writeBuffer.putInt(coordinates[i]);
+                }
+                writeBuffer.putChar(packet.getSingleChar());
+
             }
 
             finishWritingIntoBuffer();

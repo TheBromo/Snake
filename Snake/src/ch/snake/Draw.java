@@ -72,7 +72,7 @@ class Draw extends JLabel implements KeyListener {
         if (now - last >= interval) {
 
             try {
-                mNetwork.sendPacket(users, heads, PacketType.DIRECTION);
+                mNetwork.sendPacket(users, heads, PacketType.ADVANCEDDIR);
                 for (InetAddress key : users.keySet()) {
                     if (users.get(key).isAlive()) {
                         //The Movement in Steps of
