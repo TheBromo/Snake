@@ -84,7 +84,7 @@ public class Network {
         for (InetAddress address : users.keySet()) {
 
             //skips the writing process to yourself
-            if (!address.equals(InetAddress.getLocalHost())) {
+            if (!address.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
 
 
                 //Creates a new Packet that will be put into the byteBuffer to be sent
@@ -103,14 +103,14 @@ public class Network {
 
                     //The name of a user will be sent
                     /*PacketType, checkNumber , length, string,*/
-                    packet.addString(users.get(InetAddress.getLocalHost()).getName());
+                    packet.addString(users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getName());
                     writeBuffer.putInt(packet.getBytesArray().length);
                     writeBuffer.put(packet.getBytesArray());
 
                 } else if (packetType == PacketType.COORDINATES) {
 
-                    Coordinates you = heads.get(InetAddress.getLocalHost());
-                    packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getLocalHost()).isAlive());
+                    Coordinates you = heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+                    packet.addCoordinates(you.newX, you.newY, users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).isAlive());
 
                     //the new Coordinates of a user will be sent
                     /*PacketType,checkNumber,int x, int y, boolean,  */
@@ -121,11 +121,11 @@ public class Network {
 
 
                 } else if (packetType == PacketType.DIRECTION) {
-                    if (heads.get(InetAddress.getLocalHost()).lastChar != heads.get(InetAddress.getLocalHost()).nextDir) {
-                        System.out.println("Last char= " + heads.get(InetAddress.getLocalHost()).lastChar);
-                        System.out.println("NextDir= " + heads.get(InetAddress.getLocalHost()).nextDir);
+                    if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir) {
+                        System.out.println("Last char= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar);
+                        System.out.println("NextDir= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
                         //if the direction changed the direction is going to be sent
-                        packet.setSingleChar(heads.get(InetAddress.getLocalHost()).nextDir);
+                        packet.setSingleChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
                         writeBuffer.putChar(packet.getSingleChar());
                     } else {
                         finishWritingIntoBuffer();
@@ -211,6 +211,9 @@ public class Network {
                         char nextDir = readBuffer.getChar();
 
                         heads.get(((InetSocketAddress) sender).getAddress()).nextDir = nextDir;
+                    } else if (packet.getType() == PacketType.RESEND) {
+                        resend();
+                        return;
                     }
                     //Response packets must not be confirmed to be sent
                     if (packet.getType() != PacketType.RESPONSE) {

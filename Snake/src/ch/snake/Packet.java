@@ -27,7 +27,7 @@ enum PacketType {
     NAME(1),
     COORDINATES(2),
     DIRECTION(3),
-    RESPONSE(4);
+    RESPONSE(4),RESEND(5);
 
 
     private final int type;

@@ -104,9 +104,10 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
+
             mNetwork.receivePacket(users, heads);
             if (now - last2 >= 10) {
-                mNetwork.resend();
+                mNetwork.sendPacket(users,heads,PacketType.RESEND);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,21 +166,21 @@ class Draw extends JLabel implements KeyListener {
         try {
             if (e.getKeyCode() == KeyEvent.VK_W) {
 
-                if (heads.get(InetAddress.getLocalHost()).lastChar != 'S') {
-                    heads.get(InetAddress.getLocalHost()).nextDir = 'N';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'S') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'N';
                 }
 
             } else if (e.getKeyCode() == KeyEvent.VK_A) {
-                if (heads.get(InetAddress.getLocalHost()).lastChar != 'E') {
-                    heads.get(InetAddress.getLocalHost()).nextDir = 'W';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'E') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'W';
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_S) {
-                if (heads.get(InetAddress.getLocalHost()).lastChar != 'N') {
-                    heads.get(InetAddress.getLocalHost()).nextDir = 'S';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'N') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'S';
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_D) {
-                if (heads.get(InetAddress.getLocalHost()).lastChar != 'W') {
-                    heads.get(InetAddress.getLocalHost()).nextDir = 'E';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'W') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'E';
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_T) {
                 nameVisible = true;
