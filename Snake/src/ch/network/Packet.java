@@ -79,7 +79,7 @@ public class Packet {
         this.checkNumber = checkNumber;
 
         header = new PacketHeader();
-        data = header.addHeader(this);
+        this.data = header.addHeader(this);
 
     }
 
