@@ -43,18 +43,18 @@ enum PacketType {
 
 class PacketHeader {
 
-    private ByteBuffer buffer;
+    private ByteBuffer data;
 
     public ByteBuffer addHeader(Packet packet) {
 
-        buffer = packet.getData();
+        data = packet.getData();
 
         // packetType, timeSent, checkNumber,
-        buffer.putInt(packet.getType().type());
-        buffer.putLong(packet.getTimeCreated());
-        buffer.putInt(packet.getCheckNumber());
+        data.putInt(packet.getType().type());
+        data.putLong(packet.getTimeCreated());
+        data.putInt(packet.getCheckNumber());
 
-        return buffer;
+        return data;
     }
 
 
