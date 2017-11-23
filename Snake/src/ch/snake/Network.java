@@ -359,6 +359,8 @@ public class Network {
                 writeBuffer.put(packet.getBytesArray());
 
             } else if (packet.getType() == PacketType.DIRECTION) {
+                packet.timesReSent++;
+                System.out.println("Resending Times resent = " + packet.timesReSent);
                 writeBuffer.putChar(packet.getSingleChar());
             } else if (packet.getType() == PacketType.CONNECTION) {
                 writeBuffer.putLong(packet.getTime());

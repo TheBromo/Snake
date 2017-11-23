@@ -56,6 +56,7 @@ public class Packet {
     private ArrayList<Integer> integers = new ArrayList<>();
     private ArrayList<Byte> bytes = new ArrayList<>();
     private ArrayList<Character> characters = new ArrayList<>();
+    public int timesReSent = 0;
 
     public Packet(InetAddress receiver, int checkNumber) {
         this.receiver = receiver;

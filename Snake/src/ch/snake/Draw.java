@@ -72,8 +72,8 @@ class Draw extends JLabel implements KeyListener {
         if (now - last >= interval) {
 
             try {
-                mNetwork.test(users, heads);
-                // mNetwork.sendPacket(users, heads, PacketType.DIRECTION);
+                //mNetwork.test(users, heads);
+                mNetwork.sendPacket(users, heads, PacketType.DIRECTION);
                 for (InetAddress key : users.keySet()) {
                     if (users.get(key).isAlive()) {
                         //The Movement in Steps of
@@ -106,7 +106,7 @@ class Draw extends JLabel implements KeyListener {
 
         try {
             mNetwork.receivePacket(users, heads);
-            if (now - last2 >= 10) {
+            if (now - last2 >= 50) {
                 mNetwork.sendPacket(users,heads,PacketType.RESEND);
             }
         } catch (IOException e) {
@@ -158,6 +158,11 @@ class Draw extends JLabel implements KeyListener {
 
         if (nameVisible) {
             mHUD.showStats(g, bounds);
+        }
+        try {
+            mNetwork.receivePacket(users, heads);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         repaint();
     }
