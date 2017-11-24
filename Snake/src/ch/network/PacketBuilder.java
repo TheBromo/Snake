@@ -3,12 +3,15 @@ package ch.network;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class PacketBuilder {
 
 
-    private int checkNumber;
+    private int checkNumber, waitingTime = 20000;
+    private Packet newestPacket;
 
     public PacketBuilder() {
         checkNumber = 0;
@@ -34,14 +37,29 @@ public class PacketBuilder {
         } else if (packet.getType() == PacketType.COORDINATES) {
             data = buildCoordinatesPacket(data, heads, users);
         } else if (packet.getType() == PacketType.DIRECTION) {
-            //TODO
-        } else if (packet.getType() == PacketType.RESEND) {
-            //TODO
+            data = buildDirectionPacket(data, heads);
         } else if (packet.getType() == PacketType.CONNECTION) {
-            //TODO
+            data = buildConnectionPacket(data, packet);
         }
+        packet.setData(data);
+        newestPacket=packet;
+        return data;
+    }
+
+    private ByteBuffer buildConnectionPacket(ByteBuffer data, Packet packet) {
+        long startTime = packet.getTimeCreated() + waitingTime;
+        data.putLong(startTime);
+        NewNetwork.setStartTime(startTime);
+        return data;
+    }
+
+
+    private ByteBuffer buildDirectionPacket(ByteBuffer data, HashMap<InetAddress, Coordinates> heads) throws UnknownHostException {
+        //new Direction(char)
+        data.putChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
 
         return data;
+
     }
 
     private ByteBuffer buildCoordinatesPacket(ByteBuffer data, HashMap<InetAddress, Coordinates> heads, HashMap<InetAddress, Tail> users) throws UnknownHostException {
@@ -55,6 +73,14 @@ public class PacketBuilder {
 
         return data;
     }
+
+    private ByteBuffer buildNamePacket(ByteBuffer data, HashMap<InetAddress, Tail> users) throws UnknownHostException {
+
+        /* length, string,*/
+        String userName = users.get(InetAddress.getLocalHost().getHostAddress()).getName();
+        return addString(data, userName);
+    }
+
 
     private ByteBuffer addCoordinates(ByteBuffer data, Coordinates coordinates) {
 
@@ -75,13 +101,6 @@ public class PacketBuilder {
     }
 
 
-    private ByteBuffer buildNamePacket(ByteBuffer data, HashMap<InetAddress, Tail> users) throws UnknownHostException {
-
-        /* length, string,*/
-        String userName = users.get(InetAddress.getLocalHost().getHostAddress()).getName();
-        return addString(data, userName);
-    }
-
     private ByteBuffer addString(ByteBuffer data, String string) {
 
         byte[] stringAsBytes = string.getBytes();
@@ -91,5 +110,7 @@ public class PacketBuilder {
         return data;
     }
 
-
+    public Packet getNewestPacket() {
+        return newestPacket;
+    }
 }

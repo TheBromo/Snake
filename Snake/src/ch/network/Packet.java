@@ -57,6 +57,24 @@ class PacketHeader {
         return data;
     }
 
+    public void readHeader(Packet packet){
+        data=packet.getData();
+        //getType
+        int typeNumber = data.getInt();
+        for (PacketType pack : PacketType.values()) {
+            if (pack.type() == typeNumber) {
+                packet.setType(pack);
+                break;
+            }
+        }
+        //getTimeCreated
+        packet.setTimeCreated(data.getLong());
+
+        //get CheckNumber
+        packet.setCheckNumber(data.getInt());
+
+
+    }
 
 }
 
@@ -87,6 +105,11 @@ public class Packet {
         this.receiver = receiver;
     }
 
+    public Packet(InetAddress sender,ByteBuffer data){
+        receiver=sender;
+        this.data=data;
+        header.readHeader(this);
+    }
 
     public ByteBuffer getData() {
         return data;
@@ -100,6 +123,9 @@ public class Packet {
         return timeCreated;
     }
 
+    public void setTimeCreated(long timeCreated) {
+        this.timeCreated = timeCreated;
+    }
 
     public PacketType getType() {
         return type;

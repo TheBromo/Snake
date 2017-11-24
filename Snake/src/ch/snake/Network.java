@@ -162,10 +162,9 @@ public class Network {
 
                 } else if (packetType == PacketType.DIRECTION) {
                     if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir) {
-
-                        System.out.println("Last char= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar);
-                        System.out.println("NextDir= " + heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
-
+                        System.out.println();
+                        System.out.println("New Direction "+packet.getType() );
+                        System.out.println();
                         //if the direction changed the direction is going to be sent
                         packet.setSingleChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
                         writeBuffer.putChar(packet.getSingleChar());
