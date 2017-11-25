@@ -31,13 +31,13 @@ public class PacketReader {
         if (packet.getType() == PacketType.NAME) {
             readNamePacket(users, data, packet);
         } else if (packet.getType() == PacketType.COORDINATES) {
-            readCooordinatesPacket();
+            readCoordinatesPacket();
         } else if (packet.getType() == PacketType.DIRECTION) {
             readDirectionPacket();
         } else if (packet.getType() == PacketType.CONNECTION) {
             readConnectionPacket();
         } else if (packet.getType() == PacketType.RESPONSE) {
-
+            readResponsePacket();
         }
     }
 
@@ -52,7 +52,7 @@ public class PacketReader {
         users.get(packet.getReceiver()).setName(str);
     }
 
-    private void readCooordinatesPacket() {
+    private void readCoordinatesPacket() {
 
     }
 
@@ -63,4 +63,7 @@ public class PacketReader {
     private void readConnectionPacket() {
 
     }
+
+
+    private void readResponsePacket(){}
 }
