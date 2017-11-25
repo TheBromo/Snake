@@ -4,6 +4,7 @@ package ch.network;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -64,7 +65,33 @@ public class NewNetwork {
         //sends the data
         socket.send(writeBuffer, socketAddress);
 
-         sentPackets.add(mPacketBuilder.getNewestPacket());
+        sentPackets.add(mPacketBuilder.getNewestPacket());
+    }
+
+    public void resendPacket(Packet packet) throws IOException {
+        prepareWritingIntoBuffer();
+        writeBuffer= mPacketBuilder.createPacket(packet);
+        finishWritingIntoBuffer();
+
+        //creates a socket address
+        InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+
+        //sends the data
+        socket.send(writeBuffer, socketAddress);
+
+    }
+
+    public void answerPacket(Packet packet) throws IOException {
+        prepareWritingIntoBuffer();
+        writeBuffer = mPacketBuilder.createPacket(packet, writeBuffer);
+        finishWritingIntoBuffer();
+
+        //creates a socket address
+        InetSocketAddress socketAddress = new InetSocketAddress(packet.getReceiver(), 23723);
+
+        //sends the data
+        socket.send(writeBuffer, socketAddress);
+
     }
 
 

@@ -3,9 +3,7 @@ package ch.network;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class PacketBuilder {
 
@@ -20,13 +18,33 @@ public class PacketBuilder {
     public ByteBuffer createPacket(InetAddress receiver, ByteBuffer buffer, PacketType packetType) throws UnknownHostException {
 
         Packet packet = new Packet(receiver, buffer, checkNumber, packetType);
-        packet.setData(fillPacket(packet));
+        packet = fillPacket(packet);
 
         checkNumber++;
         return packet.getData();
     }
 
-    public ByteBuffer fillPacket(Packet packet) throws UnknownHostException {
+
+    public ByteBuffer createPacket(Packet packet, ByteBuffer byteBuffer) throws UnknownHostException {
+        //for response
+        Packet responsePacket = new Packet(packet.getReceiver(), byteBuffer,checkNumber,PacketType.RESPONSE);
+        responsePacket = fillPacket(packet,responsePacket);
+
+        checkNumber++;
+        return responsePacket.getData();
+    }
+
+
+    public ByteBuffer createPacket(Packet packet) throws UnknownHostException {
+        //for resending
+
+
+        checkNumber++;
+        return packet.getData();
+    }
+
+
+    public Packet fillPacket(Packet packet) throws UnknownHostException {
 
         HashMap<InetAddress, Tail> users = Lobby.getUsers();
         HashMap<InetAddress, Coordinates> heads = Lobby.getHeads();
@@ -42,7 +60,25 @@ public class PacketBuilder {
             data = buildConnectionPacket(data, packet);
         }
         packet.setData(data);
-        newestPacket=packet;
+        newestPacket = packet;
+        return packet;
+    }
+
+    public Packet fillPacket(Packet packet, Packet responsePacket) {
+
+        ByteBuffer data = responsePacket.getData();
+        if (responsePacket.getType() == PacketType.RESPONSE) {
+            buildResponsePacket(data, packet);
+        } else {
+            System.out.println("Wrong packetFiller ");
+        }
+        responsePacket.setData(data);
+
+        return responsePacket;
+    }
+
+    private ByteBuffer buildResponsePacket(ByteBuffer data, Packet packet) {
+        data.putInt(packet.getCheckNumber());
         return data;
     }
 
