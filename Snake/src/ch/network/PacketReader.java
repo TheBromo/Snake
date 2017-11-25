@@ -8,33 +8,34 @@ import java.util.HashMap;
 
 public class PacketReader {
     //used to get info out of a packet
-    public ByteBuffer readPacket(InetAddress receiver, ByteBuffer data,ByteBuffer answer) throws UnknownHostException {
+    public Packet readPacket(InetAddress receiver, ByteBuffer data, ByteBuffer answer) throws UnknownHostException {
         Packet packet = new Packet(receiver, data);
         readData(packet);
-     //   answer = createResponse;
+        // Put in PacketBuilder
+        // answer = createResponse;
         //dont create response when packet is a response packet
-        return null;
+        return packet;
     }
 
-    private void readData(Packet packet){
+    private void readData(Packet packet) {
         HashMap<InetAddress, Tail> users = Lobby.getUsers();
         HashMap<InetAddress, Coordinates> heads = Lobby.getHeads();
         ByteBuffer data = packet.getData();
 
         if (packet.getType() == PacketType.NAME) {
-            readNamePacket(users,data,packet);
+            readNamePacket(users, data, packet);
         } else if (packet.getType() == PacketType.COORDINATES) {
 
         } else if (packet.getType() == PacketType.DIRECTION) {
 
         } else if (packet.getType() == PacketType.CONNECTION) {
 
-        }else if (packet.getType()==PacketType.RESPONSE){
+        } else if (packet.getType() == PacketType.RESPONSE) {
 
         }
     }
 
-    private void readNamePacket( HashMap<InetAddress, Tail> users,ByteBuffer data,Packet packet){
+    private void readNamePacket(HashMap<InetAddress, Tail> users, ByteBuffer data, Packet packet) {
         //gets the strings length
         int length = data.getInt();
         //gets the string as bytes
@@ -45,14 +46,15 @@ public class PacketReader {
         users.get(packet.getReceiver()).setName(str);
     }
 
-    private void readCooordinatesPacket(){
-
-    }
-    private void readDirectionPacket(){
+    private void readCooordinatesPacket() {
 
     }
 
-    private void readConnectionPacket(){
+    private void readDirectionPacket() {
+
+    }
+
+    private void readConnectionPacket() {
 
     }
 }
