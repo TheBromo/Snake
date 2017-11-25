@@ -7,6 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 public class PacketReader {
+    private NewNetwork mNetwork;
+
+    public PacketReader(NewNetwork newNetwork){
+        this.mNetwork=newNetwork;
+    }
+
     //used to get info out of a packet
     public Packet readPacket(InetAddress receiver, ByteBuffer data, ByteBuffer answer) throws UnknownHostException {
         Packet packet = new Packet(receiver, data);
@@ -25,11 +31,11 @@ public class PacketReader {
         if (packet.getType() == PacketType.NAME) {
             readNamePacket(users, data, packet);
         } else if (packet.getType() == PacketType.COORDINATES) {
-
+            readCooordinatesPacket();
         } else if (packet.getType() == PacketType.DIRECTION) {
-
+            readDirectionPacket();
         } else if (packet.getType() == PacketType.CONNECTION) {
-
+            readConnectionPacket();
         } else if (packet.getType() == PacketType.RESPONSE) {
 
         }

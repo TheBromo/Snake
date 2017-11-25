@@ -29,8 +29,8 @@ public class NewNetwork {
     public NewNetwork() throws IOException {
 
         //Initialize parser and Builder
-        mPacketBuilder = new PacketBuilder();
-        mPacketReader = new PacketReader();
+        mPacketBuilder = new PacketBuilder(this);
+        mPacketReader = new PacketReader(this);
 
         //prepares the socket
         socket = DatagramChannel.open();
@@ -101,5 +101,13 @@ public class NewNetwork {
 
     public static void setStartTime(long startTime) {
         NewNetwork.startTime = startTime;
+    }
+
+    public ArrayList<Packet> getSentPackets() {
+        return sentPackets;
+    }
+
+    public void setSentPackets(ArrayList<Packet> sentPackets) {
+        this.sentPackets = sentPackets;
     }
 }

@@ -10,8 +10,10 @@ public class PacketBuilder {
 
     private int checkNumber, waitingTime = 20000;
     private Packet newestPacket;
+    private NewNetwork mNetwork;
 
-    public PacketBuilder() {
+    public PacketBuilder(NewNetwork mNetwork) {
+        this.mNetwork = mNetwork;
         checkNumber = 0;
     }
 
@@ -27,8 +29,8 @@ public class PacketBuilder {
 
     public ByteBuffer createPacket(Packet packet, ByteBuffer byteBuffer) throws UnknownHostException {
         //for response
-        Packet responsePacket = new Packet(packet.getReceiver(), byteBuffer,checkNumber,PacketType.RESPONSE);
-        responsePacket = fillPacket(packet,responsePacket);
+        Packet responsePacket = new Packet(packet.getReceiver(), byteBuffer, checkNumber, PacketType.RESPONSE);
+        responsePacket = fillPacket(packet, responsePacket);
 
         checkNumber++;
         return responsePacket.getData();
