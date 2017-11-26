@@ -1,15 +1,18 @@
 package ch.network;
 
 
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class NewNetwork {
 
@@ -21,7 +24,7 @@ public class NewNetwork {
     private DatagramChannel socket;
     private Selector selector;
 
-    private static long startTime = 0;
+    private long startTime = 0;
     private int checkNumber;
     private long last = 0;
     boolean startTimeReceived = false;
@@ -70,7 +73,7 @@ public class NewNetwork {
 
     public void resendPacket(Packet packet) throws IOException {
         prepareWritingIntoBuffer();
-        writeBuffer= mPacketBuilder.createPacket(packet);
+        writeBuffer = mPacketBuilder.createPacket(packet);
         finishWritingIntoBuffer();
 
         //creates a socket address
@@ -81,7 +84,7 @@ public class NewNetwork {
 
     }
 
-    public void answerPacket(Packet packet) throws IOException {
+    private void answerPacket(Packet packet) throws IOException {
         prepareWritingIntoBuffer();
         writeBuffer = mPacketBuilder.createPacket(packet, writeBuffer);
         finishWritingIntoBuffer();
@@ -94,13 +97,69 @@ public class NewNetwork {
 
     }
 
+    public void readPacket(ByteBuffer data) throws IOException {
+        //prepares buffer for reading
+        readBuffer.position(0).limit(readBuffer.capacity());
+        //gets the address of the sender
+        SocketAddress sender = socket.receive(readBuffer);
+        readBuffer.flip();
 
-    public static long getStartTime() {
+        //the senders InetAddress
+        InetAddress address = ((InetSocketAddress) sender).getAddress();
+
+        Packet packet = mPacketReader.readPacket(address, data);
+        answerPacket(packet);
+    }
+    public void waitForConnection(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
+
+        Iterator<InetAddress> addressIterator = users.keySet().iterator();
+
+        if (addressIterator.hasNext()) {
+
+            InetAddress address = addressIterator.next();
+            if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
+                sendPacket(users, heads, PacketType.CONNECTION);
+            }
+
+            while (true) {
+
+                if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
+                    long now = System.currentTimeMillis();
+                    if (now - last == 20) {
+                        sendPacket( ,PacketType.CONNECTION);
+                        last = now;
+                    }
+                    if (startTime <= System.currentTimeMillis()) {
+                        break;
+                    }
+
+                } else {
+
+                    receivePacket(users, heads);
+                    if (startTimeReceived && startTime <= System.currentTimeMillis()) {
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    public long getStartTime() {
         return startTime;
     }
 
-    public static void setStartTime(long startTime) {
-        NewNetwork.startTime = startTime;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setStartTimeReceived(boolean startTimeReceived) {
+        this.startTimeReceived = startTimeReceived;
+    }
+
+    public boolean isStartTimeReceived() {
+        return startTimeReceived;
     }
 
     public ArrayList<Packet> getSentPackets() {

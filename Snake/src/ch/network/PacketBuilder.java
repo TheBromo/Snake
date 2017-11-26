@@ -87,7 +87,7 @@ public class PacketBuilder {
     private ByteBuffer buildConnectionPacket(ByteBuffer data, Packet packet) {
         long startTime = packet.getTimeCreated() + waitingTime;
         data.putLong(startTime);
-        NewNetwork.setStartTime(startTime);
+        mNetwork.setStartTime(startTime);
         return data;
     }
 
