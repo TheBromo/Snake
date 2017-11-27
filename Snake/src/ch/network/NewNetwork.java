@@ -1,7 +1,6 @@
 package ch.network;
 
 
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -16,18 +15,16 @@ import java.util.Iterator;
 
 public class NewNetwork {
 
+    boolean startTimeReceived = false;
     private ArrayList<Packet> sentPackets = new ArrayList<>();
     private PacketBuilder mPacketBuilder;
     private PacketReader mPacketReader;
-
     private ByteBuffer readBuffer, writeBuffer;
     private DatagramChannel socket;
     private Selector selector;
-
     private long startTime = 0;
     private int checkNumber;
     private long last = 0;
-    boolean startTimeReceived = false;
 
     public NewNetwork() throws IOException {
 
@@ -110,6 +107,34 @@ public class NewNetwork {
         Packet packet = mPacketReader.readPacket(address, data);
         answerPacket(packet);
     }
+
+    public void receivePacket() throws IOException {
+        if (selector.selectNow() > 0) {
+            Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
+            while (keys.hasNext()) {
+                SelectionKey key = keys.next();
+
+                //checks if any packets were received
+                if (key.isReadable()) {
+
+                    //prepares buffer for reading
+                    readBuffer.position(0).limit(readBuffer.capacity());
+                    //gets the address of the sender
+                    SocketAddress sender = socket.receive(readBuffer);
+                    readBuffer.flip();
+
+                    //the senders InetAddress
+                    InetAddress address = ((InetSocketAddress) sender).getAddress();
+
+                    mPacketReader.readPacket(address, readBuffer);
+
+
+                }
+                keys.remove();
+            }
+        }
+    }
+
     public void waitForConnection(HashMap<InetAddress, Tail> users, HashMap<InetAddress, Coordinates> heads) throws IOException {
 
         Iterator<InetAddress> addressIterator = users.keySet().iterator();
@@ -118,15 +143,17 @@ public class NewNetwork {
 
             InetAddress address = addressIterator.next();
             if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
-                sendPacket(users, heads, PacketType.CONNECTION);
+                sendPacketsToAll(PacketType.CONNECTION);
             }
 
             while (true) {
 
                 if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
                     long now = System.currentTimeMillis();
-                    if (now - last == 20) {
-                        sendPacket( ,PacketType.CONNECTION);
+                    if (now - last == 90) {
+                        for (Packet p : sentPackets) {
+                            resendPacket(p);
+                        }
                         last = now;
                     }
                     if (startTime <= System.currentTimeMillis()) {
@@ -134,8 +161,7 @@ public class NewNetwork {
                     }
 
                 } else {
-
-                    receivePacket(users, heads);
+                    receivePacket();
                     if (startTimeReceived && startTime <= System.currentTimeMillis()) {
                         break;
                     }
@@ -145,6 +171,12 @@ public class NewNetwork {
 
     }
 
+    private void sendPacketsToAll(PacketType type) throws IOException {
+        for (InetAddress key : Lobby.getHeads().keySet()) {
+            sendPacket(key, type);
+        }
+
+    }
 
     public long getStartTime() {
         return startTime;
@@ -154,12 +186,12 @@ public class NewNetwork {
         this.startTime = startTime;
     }
 
-    public void setStartTimeReceived(boolean startTimeReceived) {
-        this.startTimeReceived = startTimeReceived;
-    }
-
     public boolean isStartTimeReceived() {
         return startTimeReceived;
+    }
+
+    public void setStartTimeReceived(boolean startTimeReceived) {
+        this.startTimeReceived = startTimeReceived;
     }
 
     public ArrayList<Packet> getSentPackets() {
