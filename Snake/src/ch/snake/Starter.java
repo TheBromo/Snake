@@ -54,8 +54,11 @@ public class Starter implements Discovery.Callback {
         }
         Discovery.close();
         System.out.println("DONE");
+        System.out.println("efsdf");
         //Removed after new nettools update
         System.out.println(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+
+
         inetAddresses.remove(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
         inetAddresses.add(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
         String[] names = {"Spassst", "TheBromo"};

@@ -1,4 +1,4 @@
-package ch.network;
+package ch.network.Entities;
 
 /**
  * SwingSnake
@@ -20,7 +20,7 @@ package ch.network;
 
 public class Coordinates {
     int newX, newY;
-    char nextDir = 'N', lastChar;
+    char nextDir = 'N', lastChar='S';
 
     public int getNewX() {
         return newX;
@@ -41,5 +41,21 @@ public class Coordinates {
     public void setPos(int x, int y) {
         this.newY = y;
         this.newX = x;
+    }
+
+    public char getNextDir() {
+        return nextDir;
+    }
+
+    public void setNextDir(char nextDir) {
+        this.nextDir = nextDir;
+    }
+
+    public char getLastChar() {
+        return lastChar;
+    }
+
+    public void setLastChar(char lastChar) {
+        this.lastChar = lastChar;
     }
 }

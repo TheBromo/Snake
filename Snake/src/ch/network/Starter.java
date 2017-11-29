@@ -1,5 +1,6 @@
 package ch.network;
 
+import ch.network.Graphics.Gui;
 import ch.thecodinglab.nettools.Discovery;
 import ch.thecodinglab.nettools.SocketAddress;
 import ch.thecodinglab.nettools.WinNative;
@@ -54,8 +55,13 @@ public class Starter implements Discovery.Callback {
         System.out.println("DONE");
         //Removed after new nettools update
         System.out.println(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
-        inetAddresses.remove(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
-        inetAddresses.add(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+        if (inetAddresses.contains(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))){
+            System.out.println("Succes");
+
+        }else {
+            inetAddresses.add(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()));
+
+        }
         String[] names = {"Spassst", "TheBromo"};
         try {
 

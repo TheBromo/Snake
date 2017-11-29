@@ -1,4 +1,5 @@
-package ch.network;
+package ch.network.Entities;
+
 
 import java.awt.*;
 
@@ -53,7 +54,7 @@ public class Tail {
         }
     }
 
-    void reset() {
+    public void reset() {
 
         for (int x = 0; x < length; x++) {
             xArray[x] = 2000;
@@ -90,7 +91,7 @@ public class Tail {
     /**
      * Checks if the Snake Collides with the Dot, if it collides it becomes one bPart bigger
      */
-    void dotCheck(Dot mDot) {
+    public void dotCheck(Dot mDot) {
         //TODO does not work
         if (yArray[0] == mDot.getY() && xArray[0] == mDot.getX()) {
             //adds one tail part
@@ -102,15 +103,15 @@ public class Tail {
         }
     }
 
-    int[] getXCor() {
+    public int[] getXCor() {
         return xArray;
     }
 
-    int[] getYCor() {
+    public int[] getYCor() {
         return yArray;
     }
 
-    Color getColor() {
+    public Color getColor() {
         return mColor;
     }
 
@@ -119,7 +120,7 @@ public class Tail {
      *
      * @param color
      */
-    void setColor(Color color) {
+    public void setColor(Color color) {
         mColor = color;
     }
 
@@ -141,7 +142,7 @@ public class Tail {
      * @param newY will be the new X coordinate of the head
      * @param newX will be the new Y coordinate of the head
      */
-    void refresh(int newY, int newX) {
+    public void refresh(int newY, int newX) {
 
         //the last newY cor gets saved and the head gets updated
         int lastY = yArray[0];
@@ -156,11 +157,11 @@ public class Tail {
 
     }
 
-    boolean isAlive() {
+    public boolean isAlive() {
         return alive;
     }
 
-    void setAlive(boolean alive) {
+    public void setAlive(boolean alive) {
         this.alive = alive;
     }
 
@@ -172,7 +173,7 @@ public class Tail {
         this.name = name;
     }
 
-    int getScore() {
+    public int getScore() {
         return score;
     }
 

@@ -1,4 +1,8 @@
-package ch.network;
+package ch.network.netzwerk;
+
+import ch.network.Entities.Coordinates;
+import ch.network.Lobby;
+import ch.network.Entities.Tail;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -94,7 +98,7 @@ public class PacketBuilder {
 
     private ByteBuffer buildDirectionPacket(ByteBuffer data, HashMap<InetAddress, Coordinates> heads) throws UnknownHostException {
         //new Direction(char)
-        data.putChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir);
+        data.putChar(heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getNextDir());
 
         return data;
 
@@ -115,15 +119,16 @@ public class PacketBuilder {
     private ByteBuffer buildNamePacket(ByteBuffer data, HashMap<InetAddress, Tail> users) throws UnknownHostException {
 
         /* length, string,*/
-        String userName = users.get(InetAddress.getLocalHost().getHostAddress()).getName();
+        String userName;
+        userName = users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getName();
         return addString(data, userName);
     }
 
 
     private ByteBuffer addCoordinates(ByteBuffer data, Coordinates coordinates) {
 
-        data.putInt(coordinates.newX);
-        data.putInt(coordinates.newY);
+        data.putInt(coordinates.getNewX());
+        data.putInt(coordinates.getNewY());
 
         return data;
     }

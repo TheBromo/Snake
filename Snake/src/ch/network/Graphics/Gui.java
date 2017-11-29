@@ -1,4 +1,4 @@
-package ch.network;
+package ch.network.Graphics;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,5 +1,11 @@
-package ch.network;
+package ch.network.Graphics;
 
+import ch.network.Collision;
+import ch.network.Entities.Coordinates;
+import ch.network.Entities.Dot;
+import ch.network.Entities.Tail;
+import ch.network.Lobby;
+import ch.network.netzwerk.NetworkManager;
 import ch.snake.Network;
 
 import javax.swing.*;
@@ -29,9 +35,9 @@ import java.util.HashMap;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Draw extends JLabel implements KeyListener {
+public class Draw extends JLabel implements KeyListener {
 
-    static int snakeSize = Lobby.getSnakeSize();
+    public static int snakeSize = Lobby.getSnakeSize();
     private static boolean nameVisible;
     private static Color[] colors = new Color[100];
     private Dot dot = new Dot();
@@ -77,22 +83,22 @@ class Draw extends JLabel implements KeyListener {
                 for (InetAddress key : users.keySet()) {
                     if (users.get(key).isAlive()) {
                         //The Movement in Steps of
-                        if (heads.get(key).nextDir == 'N') {
+                        if (heads.get(key).getNextDir() == 'N') {
                             int y = heads.get(key).getNewY();
                             heads.get(key).setNewY(y - snakeSize);
-                            heads.get(key).lastChar = 'N';
-                        } else if (heads.get(key).nextDir == 'E') {
+                            heads.get(key).setLastChar( 'N');
+                        } else if (heads.get(key).getNextDir() == 'E') {
                             int x = heads.get(key).getNewX();
                             heads.get(key).setNewX(x + snakeSize);
-                            heads.get(key).lastChar = 'E';
-                        } else if (heads.get(key).nextDir == 'S') {
+                            heads.get(key).setLastChar('E');
+                        } else if (heads.get(key).getNextDir() == 'S') {
                             int y = heads.get(key).getNewY();
                             heads.get(key).setNewY(y + snakeSize);
-                            heads.get(key).lastChar = 'S';
-                        } else if (heads.get(key).nextDir == 'W') {
+                            heads.get(key).setLastChar('S');
+                        } else if (heads.get(key).getNextDir() == 'W') {
                             int x = heads.get(key).getNewX();
                             heads.get(key).setNewX(x - snakeSize);
-                            heads.get(key).lastChar = 'W';
+                            heads.get(key).setLastChar('W');
                         }
                     }
                 }
@@ -176,21 +182,21 @@ class Draw extends JLabel implements KeyListener {
         try {
             if (e.getKeyCode() == KeyEvent.VK_W) {
 
-                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'S') {
-                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'N';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getLastChar() != 'S') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setNextDir('N');
                 }
 
             } else if (e.getKeyCode() == KeyEvent.VK_A) {
-                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'E') {
-                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'W';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getLastChar() != 'E') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setNextDir('W');
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_S) {
-                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'N') {
-                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'S';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getLastChar() != 'N') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setNextDir('S');
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_D) {
-                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).lastChar != 'W') {
-                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).nextDir = 'E';
+                if (heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).getLastChar() != 'W') {
+                    heads.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setNextDir('E');
                 }
             } else if (e.getKeyCode() == KeyEvent.VK_T) {
                 nameVisible = true;

@@ -1,12 +1,9 @@
-package ch.network;
+package ch.network.netzwerk;
+
+import ch.network.Lobby;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 
 public class NetworkManager {
 
@@ -28,34 +25,42 @@ public class NetworkManager {
     }
 
     public void getData() throws IOException {
-        mNetwork.receivePacket();
+        mNetwork.receivePackets();
     }
 
     public void resend() throws IOException {
-        for (Packet packet:mNetwork.getSentPackets()) {
+        for (Packet packet : mNetwork.getSentPackets()) {
             mNetwork.resendPacket(packet);
         }
     }
 
     public void receive() throws IOException {
-        mNetwork.receivePacket();
+        mNetwork.receivePackets();
     }
 
     public void sendDirections() throws IOException {
         for (InetAddress key : Lobby.getHeads().keySet()) {
-            mNetwork.sendPacket(key, PacketType.DIRECTION);
+         //   if (!key.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
+                mNetwork.sendPacket(key, PacketType.DIRECTION);
+           // }
         }
     }
 
     public void sendCoordinates() throws IOException {
         for (InetAddress key : Lobby.getHeads().keySet()) {
-            mNetwork.sendPacket(key, PacketType.COORDINATES);
+            //if (!key.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
+
+                mNetwork.sendPacket(key, PacketType.COORDINATES);
+
+            //}
         }
     }
 
     public void sendNames() throws IOException {
         for (InetAddress key : Lobby.getHeads().keySet()) {
-            mNetwork.sendPacket(key, PacketType.NAME);
+            //if (!key.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
+                mNetwork.sendPacket(key, PacketType.NAME);
+            //}
         }
     }
 

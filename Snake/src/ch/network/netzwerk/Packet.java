@@ -1,4 +1,4 @@
-package ch.network;
+package ch.network.netzwerk;
 
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -59,6 +59,7 @@ class PacketHeader {
     public void readHeader(Packet packet){
         data=packet.getData();
         //getType
+        System.out.println();
         int typeNumber = data.getInt();
         for (PacketType pack : PacketType.values()) {
             if (pack.type() == typeNumber) {
@@ -105,6 +106,7 @@ public class Packet {
     }
 
     public Packet(InetAddress sender,ByteBuffer data){
+        header=new PacketHeader();
         receiver=sender;
         this.data=data;
         header.readHeader(this);
@@ -115,7 +117,7 @@ public class Packet {
     }
 
     public void setData(ByteBuffer data) {
-        this.data = data;
+        this.data = data.duplicate();
     }
 
     public long getTimeCreated() {

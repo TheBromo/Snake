@@ -1,4 +1,7 @@
-package ch.network;
+package ch.network.Entities;
+
+import ch.network.Graphics.Draw;
+import ch.network.Lobby;
 
 import java.net.InetAddress;
 import java.util.Random;
@@ -21,7 +24,7 @@ import java.util.Random;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Dot {
+public class Dot {
 
     private static int mX = 400, mY = 400, mSizeX = Draw.snakeSize, mSizeY = Draw.snakeSize;
     Random r = new Random();
@@ -58,19 +61,19 @@ class Dot {
         return false;
     }
 
-    int getSizeX() {
+    public int getSizeX() {
         return mSizeX;
     }
 
-    int getSizeY() {
+    public int getSizeY() {
         return mSizeY;
     }
 
-    int getY() {
+    public int getY() {
         return mY;
     }
 
-    int getX() {
+    public int getX() {
         return mX;
     }
 }

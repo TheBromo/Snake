@@ -1,4 +1,8 @@
-package ch.network;
+package ch.network.netzwerk;
+
+import ch.network.Entities.Coordinates;
+import ch.network.Lobby;
+import ch.network.Entities.Tail;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -39,7 +43,7 @@ public class PacketReader {
         } else if (packet.getType() == PacketType.CONNECTION) {
             readConnectionPacket(data);
         } else if (packet.getType() == PacketType.RESPONSE) {
-            readResponsePacket(packet,data);
+            readResponsePacket(packet, data);
         }
     }
 
@@ -54,7 +58,7 @@ public class PacketReader {
 
     private void readDirectionPacket(Packet packet, HashMap<InetAddress, Coordinates> heads, ByteBuffer data) {
         char nextDir = data.getChar();
-        heads.get(packet.getReceiver()).nextDir = nextDir;
+        heads.get(packet.getReceiver()).setNextDir(nextDir);
 
     }
 
@@ -66,8 +70,8 @@ public class PacketReader {
     }
 
 
-    private void readResponsePacket(Packet packet,ByteBuffer data) {
-        int checkNumber= data.getInt();
+    private void readResponsePacket(Packet packet, ByteBuffer data) {
+        int checkNumber = data.getInt();
         ArrayList<Packet> packets = mNetwork.getSentPackets();
         packets.removeIf(p -> checkNumber == p.getCheckNumber() && p.getReceiver().equals(packet.getReceiver()));
         mNetwork.setSentPackets(packets);

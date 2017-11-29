@@ -1,4 +1,6 @@
-package ch.network;
+package ch.network.Graphics;
+
+import ch.network.Lobby;
 
 import java.awt.*;
 import java.net.InetAddress;

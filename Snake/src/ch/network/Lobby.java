@@ -1,5 +1,8 @@
 package ch.network;
 
+import ch.network.Entities.Coordinates;
+import ch.network.Entities.Tail;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -23,7 +26,7 @@ import java.util.Iterator;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Lobby {
+public class Lobby {
     private static int snakeSize = 10;
     private static long seed;
     private static HashMap<InetAddress, Tail> users = new HashMap<>();

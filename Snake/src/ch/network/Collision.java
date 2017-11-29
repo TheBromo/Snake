@@ -1,5 +1,8 @@
 package ch.network;
 
+import ch.network.Entities.Coordinates;
+import ch.network.Entities.Tail;
+
 import java.awt.*;
 
 /**

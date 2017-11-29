@@ -1,5 +1,9 @@
-package ch.network;
+package ch.network.netzwerk;
 
+
+import ch.network.Entities.Coordinates;
+import ch.network.Lobby;
+import ch.network.Entities.Tail;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -56,7 +60,7 @@ public class NewNetwork {
 
     public void sendPacket(InetAddress receiver, PacketType packetType) throws IOException {
         prepareWritingIntoBuffer();
-        writeBuffer = mPacketBuilder.createPacket(receiver, writeBuffer, packetType);
+        mPacketBuilder.createPacket(receiver, writeBuffer, packetType);
         finishWritingIntoBuffer();
 
         //creates a socket address
@@ -70,7 +74,8 @@ public class NewNetwork {
 
     public void resendPacket(Packet packet) throws IOException {
         prepareWritingIntoBuffer();
-        writeBuffer = mPacketBuilder.createPacket(packet);
+        //TODO give over attribute
+        mPacketBuilder.createPacket(packet);
         finishWritingIntoBuffer();
 
         //creates a socket address
@@ -83,7 +88,7 @@ public class NewNetwork {
 
     private void answerPacket(Packet packet) throws IOException {
         prepareWritingIntoBuffer();
-        writeBuffer = mPacketBuilder.createPacket(packet, writeBuffer);
+        mPacketBuilder.createPacket(packet, writeBuffer);
         finishWritingIntoBuffer();
 
         //creates a socket address
@@ -108,7 +113,7 @@ public class NewNetwork {
         answerPacket(packet);
     }
 
-    public void receivePacket() throws IOException {
+    public void receivePackets() throws IOException {
         if (selector.selectNow() > 0) {
             Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
             while (keys.hasNext()) {
@@ -125,7 +130,11 @@ public class NewNetwork {
 
                     //the senders InetAddress
                     InetAddress address = ((InetSocketAddress) sender).getAddress();
-
+                    if (readBuffer.limit()==0) {
+                        System.out.println(" ;( ");
+                        keys.remove();
+                        continue;
+                    }
                     mPacketReader.readPacket(address, readBuffer);
 
 
@@ -143,6 +152,7 @@ public class NewNetwork {
 
             InetAddress address = addressIterator.next();
             if (InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()).equals(address)) {
+
                 sendPacketsToAll(PacketType.CONNECTION);
             }
 
@@ -161,7 +171,7 @@ public class NewNetwork {
                     }
 
                 } else {
-                    receivePacket();
+                    receivePackets();
                     if (startTimeReceived && startTime <= System.currentTimeMillis()) {
                         break;
                     }
@@ -173,7 +183,10 @@ public class NewNetwork {
 
     private void sendPacketsToAll(PacketType type) throws IOException {
         for (InetAddress key : Lobby.getHeads().keySet()) {
-            sendPacket(key, type);
+           // if (!key.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
+
+                sendPacket(key, type);
+            //}
         }
 
     }
