@@ -38,6 +38,7 @@ class Draw extends JLabel implements KeyListener {
     private int interval = (int) (100 / (20 / snakeSize));
     private long last = 0, last2 = 0;
     private Network mNetwork;
+    private NetworkManager mNetworkManager;
     private Collision mCollision;
     private HUD mHUD;
     private HashMap<InetAddress, Coordinates> heads;
@@ -50,13 +51,10 @@ class Draw extends JLabel implements KeyListener {
 
         generateHSB();
 
-        mNetwork = new Network();
+        mNetworkManager = new NetworkManager();
         mCollision = new Collision();
         mHUD = new HUD();
 
-        mNetwork.sendPacket(users, heads, ch.snake.PacketType.NAME);
-        mNetwork.receivePacket(users, heads);
-        mNetwork.waitForConnection(users, heads);
     }
 
     protected void paintComponent(Graphics g) {
@@ -75,7 +73,7 @@ class Draw extends JLabel implements KeyListener {
 
             try {
                 //mNetwork.test(users, heads);
-                mNetwork.sendPacket(users, heads, ch.snake.PacketType.DIRECTION);
+                mNetworkManager.sendDirections();
                 for (InetAddress key : users.keySet()) {
                     if (users.get(key).isAlive()) {
                         //The Movement in Steps of
@@ -107,9 +105,9 @@ class Draw extends JLabel implements KeyListener {
 
 
         try {
-            mNetwork.receivePacket(users, heads);
+            mNetworkManager.receive();
             if (now - last2 >= 50) {
-                mNetwork.sendPacket(users, heads, ch.snake.PacketType.RESEND);
+                mNetworkManager.resend();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -162,7 +160,7 @@ class Draw extends JLabel implements KeyListener {
             mHUD.showStats(g, bounds);
         }
         try {
-            mNetwork.receivePacket(users, heads);
+            mNetworkManager.receive();
         } catch (IOException e) {
             e.printStackTrace();
         }

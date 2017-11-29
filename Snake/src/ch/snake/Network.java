@@ -368,6 +368,7 @@ public class Network {
                 for (int coordinate : coordinates) {
                     writeBuffer.putInt(coordinate);
                 }
+                System.out.println();
                 writeBuffer.putChar(packet.getSingleChar());
 
             }
