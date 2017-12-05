@@ -24,7 +24,7 @@ import java.util.Iterator;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-enum PacketType {
+public enum PacketType {
     NAME(1),
     COORDINATES(2),
     DIRECTION(3),

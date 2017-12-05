@@ -32,7 +32,7 @@ class Lobby {
     public Lobby(InetAddress[] ipAdresses, int size) throws UnknownHostException {
         for (int i = 0; i < ipAdresses.length; i++) {
             heads.put(ipAdresses[i], new Coordinates());
-            users.put(ipAdresses[i], new Tail("Test"));
+            users.put(ipAdresses[i], new Tail("Network"));
         }
         users.get(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress())).setName("TheBromo");
         int ySteps = 0;
