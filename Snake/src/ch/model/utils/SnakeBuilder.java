@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.Views;
+package ch.model.utils;
 
-public class GameView {
+public class SnakeBuilder {
 }

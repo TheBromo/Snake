@@ -115,7 +115,7 @@ public class Network {
                     packets.add(p);
 
                 } else {
-                    System.out.println("Packet lost: Type:" + p.getType() + " CheckNumber:" + p.getCheckNumber());
+                    System.out.println("packet lost: Type:" + p.getType() + " CheckNumber:" + p.getCheckNumber());
                 }
             }
             sentPackets.removeAll(packets);
@@ -129,7 +129,7 @@ public class Network {
             if (!address.equals(InetAddress.getByName(InetAddress.getLocalHost().getHostAddress()))) {
 
 
-                //Creates a new Packet that will be put into the byteBuffer to be sent
+                //Creates a new packet that will be put into the byteBuffer to be sent
                 Packet packet = new Packet(address, checkNumber);
                 packet.setType(packetType);
 
@@ -137,7 +137,7 @@ public class Network {
                 //Starts the process of writing to the packets
                 prepareWriteBuffer();
 
-                //Packet header
+                //packet header
                 writeBuffer.putInt(packetType.type());
                 writeBuffer.putInt(packet.getCheckNumber());
                 //packet content
@@ -239,7 +239,7 @@ public class Network {
                     //the senders InetAddress
                     InetAddress address = ((InetSocketAddress) sender).getAddress();
 
-                    //creates a new Packet
+                    //creates a new packet
                     Packet packet = new Packet(address);
 
                     //gets the packetType as number

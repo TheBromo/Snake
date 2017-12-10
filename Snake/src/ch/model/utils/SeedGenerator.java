@@ -17,7 +17,21 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.Views;
+package ch.model.utils;
 
-public class GameView {
+import java.net.InetAddress;
+
+public class SeedGenerator {
+
+    public long generateSeed(String seed) {
+
+        String s = seed;
+
+        long hash = 0;
+        for (char c : s.toCharArray()) {
+            hash = 31L * hash + c;
+        }
+        return hash;
+    }
+
 }

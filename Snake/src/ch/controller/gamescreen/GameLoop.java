@@ -17,7 +17,17 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.Views;
+package ch.controller.gamescreen;
 
-public class GameView {
+import ch.model.entities.Lobby;
+
+public class GameLoop {
+
+    private Lobby lobby;
+
+    public GameLoop() {
+        lobby = new Lobby(800);
+
+    }
+
 }

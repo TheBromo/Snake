@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.Views;
+package ch.model.network.packet;
 
-public class GameView {
+public class PacketBuilder {
 }
