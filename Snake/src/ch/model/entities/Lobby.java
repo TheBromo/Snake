@@ -44,6 +44,7 @@ public class Lobby {
     public Lobby(int screenSize) {
         this.screenSize = screenSize;
 
+        //Discovers All players in the same Network
         NettoolsDiscovery netttools = new NettoolsDiscovery();
         players = netttools.discover();
 
@@ -71,6 +72,7 @@ public class Lobby {
             Coordinates startCoordinates = positionSetter.getNewCoordinate();
             Snake snake = new Snake(startCoordinates);
             snakeHashMap.put(key, snake);
+
         }
     }
 
