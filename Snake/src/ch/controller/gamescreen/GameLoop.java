@@ -20,13 +20,16 @@
 package ch.controller.gamescreen;
 
 import ch.model.entities.Lobby;
+import ch.snake.Network;
 
 public class GameLoop {
 
     private Lobby lobby;
+    private Network network;
 
     public GameLoop() {
         lobby = new Lobby(800);
+
 
     }
 
